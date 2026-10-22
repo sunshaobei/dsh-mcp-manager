@@ -801,7 +801,7 @@ body[data-ds-dark-theme] {
   border-radius: 16px;
   padding: 12px 14px;
   margin-bottom: 10px;
-  background: var(--dm-card-bg);
+  background: transparent;
   line-height: 1.5;
 }
 .dm-server.dm-server--fail {
