@@ -6,4 +6,4 @@
 # 配置走 schema 默认值（enabled / announceToAgent），行内不带 config。
 - insert:
     - id: dsh-mcp-manager
-      name: "@sunshaobei/dsh-mcp-manager"
+      name: 'dsh-mcp-manager'
