@@ -64,7 +64,8 @@
 }
 html.dark,
 [data-theme="dark"],
-[data-color-mode="dark"] {
+[data-color-mode="dark"],
+body[data-ds-dark-theme] {
   --dm-glass-bg: rgba(24, 24, 27, 0.74);
   --dm-glass-bg-strong: rgba(24, 24, 27, 0.86);
   --dm-wash: color-mix(in srgb, #ffffff 12%, transparent);
@@ -96,7 +97,8 @@ html.dark,
   }
   html.dark,
   [data-theme="dark"],
-  [data-color-mode="dark"] {
+  [data-color-mode="dark"],
+  body[data-ds-dark-theme] {
     --dm-glass-bg: rgba(18, 18, 20, 0.96);
     --dm-glass-bg-strong: #121214;
     --dm-glass-edge: rgba(255, 255, 255, 0.28);
