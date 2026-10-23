@@ -76,7 +76,7 @@ function fixture() {
 /** 为 manager 挂上项目级 store（project scope 写入路径）。 */
 async function attachProjectStore(manager: McpManager, prefix: string) {
   const projDir = makeTempDir(prefix);
-  const projStore = new McpStore(join(projDir, ".dsh", "dsh-mcp-manager.config"));
+  const projStore = new McpStore(join(projDir, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
   await projStore.load();
   manager.projectStores.set(projDir, projStore);
   manager.projectStore = projStore;
@@ -219,7 +219,7 @@ describe("S2-b：projectStoreFor 经 upgrade 端口落定新形态", () => {
     mkdirSync(join(projDir, ".dsh"), { recursive: true });
     const legacyPath = join(projDir, ".dsh", "dsh-mcp-manager", "mcp.json");
     mkdirSync(join(projDir, ".dsh", "dsh-mcp-manager"), { recursive: true });
-    const newPath = join(projDir, ".dsh", "dsh-mcp-manager.config");
+    const newPath = join(projDir, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config");
     writeFileSync(
       legacyPath,
       JSON.stringify({

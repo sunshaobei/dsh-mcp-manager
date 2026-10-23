@@ -2366,8 +2366,8 @@ describe("外部配置变更自动重读（refreshFromDisk / reconcileServers）
     base = mkdtempSync(join(tmpdir(), "dsh-mcp-manager-reload-"));
     proj = join(base, "proj");
     // S2-b：项目级新形态直写（经 setSession→projectStoreFor 直读；旧扁平只走迁移）。
-    cfg = join(proj, ".dsh", "dsh-mcp-manager.config");
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    cfg = join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config");
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(cfg, JSON.stringify({ version: 1, servers: [] }));
     gstore = new McpStore(join(base, "dsh-mcp.json"));
     // 全局 disabled 服务器：验证 reconcile 不会为其 spawn 进程。

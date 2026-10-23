@@ -3,7 +3,7 @@
  *
  * 四个声明来源，默认全部读取：
  *   - 全局：~/.agents/mcp.json 与 ~/.dsh/mcp.json
- *   - 项目：<项目根>/.agents/mcp.json 与 <项目根>/.dsh/mcp.json
+ *   - 项目：<项目根>/.agents/mcp.json 与 <项目根>/.dsh/dsh-mcp-manager/mcp.json
  *
  * 同名互斥原则：同一个服务器名在多个来源出现时，**只允许一个生效**——
  * 生效者进入对应 scope 的 store 并连接；落选者不落盘（若其 scope store

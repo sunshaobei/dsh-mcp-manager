@@ -11,7 +11,7 @@ import { dshHome } from "../../vendor/shared/dsh-home.js";
 import { pluginHome } from "../../vendor/shared/paths.js";
 
 /** 本插件在 DSH home 下的私有目录：按 npm 包名分区，不与其它插件争用根目录。 */
-const PACKAGE_DIR = "dsh-mcp-manager";
+export const PACKAGE_DIR = "dsh-mcp-manager";
 
 /** 私有目录权限：同机其它用户不得列举本插件的落盘面（与 mcp.json 的 0o600 同族）。 */
 export const PACKAGE_DIR_MODE = 0o700;
@@ -28,9 +28,9 @@ export const SOURCE_PREFS_FILE_NAME = "source-prefs.json";
 export const VERSION_FILE_NAME = "version";
 
 /**
- * 生效配置（互斥同步唯一写面）：全局 `<DSH_HOME>/.dsh/dsh-mcp-manager.config`、
- * 项目 `<项目根>/.dsh/dsh-mcp-manager.config`。四个声明来源（.agents/.dsh 的
- * mcp.json）只进同步器，不直接被运行面读取；旧目录形态见 legacyProjectConfigFile。
+ * 生效配置（互斥同步唯一写面）：全局 `<DSH_HOME>/dsh-mcp-manager/dsh-mcp-manager.config`、
+ * 项目 `<项目根>/.dsh/dsh-mcp-manager/dsh-mcp-manager.config`。四个声明来源（.agents/.dsh 的
+ * mcp.json）只进同步器，不直接被运行面读取；旧路径见 legacy*ConfigFile（迁移读面）。
  */
 const PROJECT_CONFIG_DIR_NAME = ".dsh";
 const PROJECT_CONFIG_FILE_NAME = "mcp.json";
@@ -56,10 +56,15 @@ function mcpManagerFile(fileName: string): string {
   return join(mcpManagerHome(), fileName);
 }
 
-/** 全局生效配置：`<DSH_HOME>/.dsh/dsh-mcp-manager.config`（互斥同步唯一写面，
+/** 旧版全局生效配置（迁移**读面**，新代码不得回写）：`<DSH_HOME>/.dsh/dsh-mcp-manager.config`。 */
+export function legacyGlobalConfigFile(): string {
+  return join(dshHome(), ".dsh", EFFECTIVE_CONFIG_FILE_NAME);
+}
+
+/** 全局生效配置：`<DSH_HOME>/dsh-mcp-manager/dsh-mcp-manager.config`（互斥同步唯一写面，
  * 含 env 引用与凭据字段，0600）。四个声明来源 mcp.json 不会直接被运行面读取。 */
 export function configFile(): string {
-  return join(dshHome(), EFFECTIVE_CONFIG_FILE_NAME);
+  return mcpManagerFile(EFFECTIVE_CONFIG_FILE_NAME);
 }
 
 /**
@@ -102,9 +107,14 @@ export function versionFile(): string {
   return mcpManagerFile(VERSION_FILE_NAME);
 }
 
-/** 项目级生效配置：`<项目根>/.dsh/dsh-mcp-manager.config`（互斥同步唯一写面）。 */
-export function projectConfigFile(projectRoot: string): string {
+/** 旧版项目级生效配置（迁移**读面**，新代码不得回写）：`<项目根>/.dsh/dsh-mcp-manager.config`。 */
+export function legacyProjectEffectiveConfigFile(projectRoot: string): string {
   return join(projectRoot, PROJECT_CONFIG_DIR_NAME, EFFECTIVE_CONFIG_FILE_NAME);
+}
+
+/** 项目级生效配置：`<项目根>/.dsh/dsh-mcp-manager/dsh-mcp-manager.config`（互斥同步唯一写面）。 */
+export function projectConfigFile(projectRoot: string): string {
+  return join(projectRoot, PROJECT_CONFIG_DIR_NAME, PACKAGE_DIR, EFFECTIVE_CONFIG_FILE_NAME);
 }
 
 /**
@@ -131,9 +141,11 @@ type ModeEntry = { readonly matches: (path: string) => boolean; readonly mode: n
  * 叶目录即包分区目录，父目录即 `.dsh`。
  */
 function isProjectConfigFile(path: string): boolean {
+  const parent = basename(dirname(path));
   return (
     basename(path) === EFFECTIVE_CONFIG_FILE_NAME &&
-    basename(dirname(path)) === PROJECT_CONFIG_DIR_NAME
+    // 旧布局：父目录即 .dsh；包分区布局：父目录是 .dsh/dsh-mcp-manager。
+    (parent === PROJECT_CONFIG_DIR_NAME || parent === PACKAGE_DIR)
   );
 }
 
@@ -145,6 +157,7 @@ function isProjectConfigFile(path: string): boolean {
  */
 const FILE_MODES: readonly ModeEntry[] = [
   { matches: (path) => path === configFile(), mode: 0o600 },
+  { matches: (path) => path === legacyGlobalConfigFile(), mode: 0o600 },
   { matches: (path) => path === userStatePath(), mode: 0o644 },
   { matches: (path) => dirname(path) === catalogDir(), mode: 0o644 },
   { matches: (path) => path === catalogSummaryFile(), mode: 0o644 },

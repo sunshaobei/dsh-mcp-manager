@@ -624,7 +624,9 @@ describe("0.1.7-rc.2 plugins.row.config 装配", () => {
     const metadata = JSON.parse(
       readFileSync(new URL("../../package.json", import.meta.url), "utf8"),
     ) as { name: string };
-    expect(metadata.name).toBe(MCP_MANAGER_IDENTITY.bundlePackage);
+    // npm 包名 scope 化（@sunshaobei/…）后与 identity 包键刻意分离：identity 是稳定
+    // 契约键（rowConfigKey 前缀），npm name 只断言自身。
+    expect(metadata.name).toBe("@sunshaobei/dsh-mcp-manager");
     const hostSource = readFileSync(new URL("../../src/index.ts", import.meta.url), "utf8");
     const clientSource = readFileSync(
       new URL("../../src/client/index.ts", import.meta.url),

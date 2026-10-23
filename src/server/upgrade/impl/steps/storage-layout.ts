@@ -12,6 +12,8 @@ import { join } from "node:path";
 import {
   LEGACY_LAYOUT,
   configFile,
+  legacyGlobalConfigFile,
+  legacyProjectEffectiveConfigFile,
   legacyFile,
   mcpManagerHome,
   userStatePath,
@@ -150,4 +152,28 @@ function archive(source: string): void {
   } catch (cause) {
     throw new Error(`dsh-mcp-manager: 旧存储文件改名失败：${source}`, { cause });
   }
+}
+
+
+/**
+ * 0.2.9 → 0.2.10：生效配置 .config 归位进包分区目录——
+ * 全局 `<DSH_HOME>/.dsh/dsh-mcp-manager.config` → `<DSH_HOME>/dsh-mcp-manager/`。
+ *
+ * 不能直接复用 `settleOne`：0.2.5 的迁移可能已在目标落过**版本化空形占位**——那不是用户数据。
+ * 目标是空占位而源在场时，以源为准覆盖；目标已有真实内容才走「归档源、保目标」的常规语义。
+ * 用户接管 store（`storePath` 非空）时整项不动。
+ */
+export async function relocateEffectiveConfigs(deps: UpgradeDeps): Promise<void> {
+	if (deps.storePath !== "") return;
+	const legacy = legacyGlobalConfigFile();
+	if (!existsSync(legacy)) return;
+	const target = configFile();
+	const seededEmpty = existsSync(target) && readFileSync(target, "utf8") === EMPTY_CONFIG;
+	if (existsSync(target) && !seededEmpty) {
+		warnIfDowngraded(legacy, target, deps);
+		archive(legacy);
+		return;
+	}
+	await writeFileAtomic(target, readSource(legacy));
+	archive(legacy);
 }

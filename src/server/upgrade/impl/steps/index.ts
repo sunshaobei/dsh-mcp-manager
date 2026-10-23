@@ -5,7 +5,7 @@
 import type { UpgradeStep } from "../../../../vendor/shared/upgrade-chain.js";
 import { tickUpgradeVersion } from "../../../../vendor/shared/upgrade-tick.js";
 import type { UpgradeDeps } from "../../deps.ts";
-import { migrateStorageLayout } from "./storage-layout.ts";
+import { migrateStorageLayout, relocateEffectiveConfigs } from "./storage-layout.ts";
 
 /**
  * 0.0.0 → 0.2.5：存储布局归位（§7.1 的目标布局 + §7.2 的迁移语义），本次迁移唯一的一步。
@@ -29,4 +29,6 @@ export const STEPS: readonly UpgradeStep<UpgradeDeps>[] = [
   { fromVersion: "0.2.7", targetVersion: "0.2.8", run: tickUpgradeVersion },
   // 0.2.8 → 0.2.9 为空步（本版无 MCP 管理器 home 级存储形态变化）：run 指共享空函数。
   { fromVersion: "0.2.8", targetVersion: "0.2.9", run: tickUpgradeVersion },
+  // 0.2.9 → 0.2.10：生效配置 .config 归位进包分区目录（全局 + 项目级 JIT）。
+  { fromVersion: "0.2.9", targetVersion: "0.2.10", run: relocateEffectiveConfigs },
 ];

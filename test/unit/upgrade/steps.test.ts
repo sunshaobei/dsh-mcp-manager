@@ -13,7 +13,7 @@
  * `readScale` 不替它决定——刻度落点与读到什么算哪一版都属本域，故随本文件守，不另立文件。
  */
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { newestTargetVersion } from "../../../src/vendor/shared/upgrade-chain.js";
 import {
@@ -83,20 +83,36 @@ describe("STEPS 表接线：装配方驱动的确实是本包迁移动作", () =
     expect(readFileSync(versionFile(), "utf8").trim()).toBe(newest);
   });
 
-  it("0.2.8 → 0.2.9 只推进 home 刻度并可重复启动（判据：存储正文逐字不变，漏步或误写必须红）", async () => {
+  it("0.2.8 → 0.2.10 推进 home 刻度并可重复启动（判据：存储正文逐字不变，漏步或误写必须红）", async () => {
     const storedData = '{"servers":["keep exactly"]}\n';
     mkdirSync(dirname(versionFile()), { recursive: true });
     writeFileSync(versionFile(), "0.2.8\n", "utf8");
     writeFileSync(configFile(), storedData, "utf8");
 
     await assemble();
-    expect(readFileSync(versionFile(), "utf8").trim()).toBe("0.2.9");
+    expect(readFileSync(versionFile(), "utf8").trim()).toBe("0.2.10");
     expect(readFileSync(configFile(), "utf8")).toBe(storedData);
 
     releaseUpgrade();
     await assemble();
-    expect(readFileSync(versionFile(), "utf8").trim()).toBe("0.2.9");
+    expect(readFileSync(versionFile(), "utf8").trim()).toBe("0.2.10");
     expect(readFileSync(configFile(), "utf8")).toBe(storedData);
+  });
+
+  it("0.2.9 → 0.2.10 把散落的 .config 归位进包分区目录，旧路径改名留痕", async () => {
+    // 旧版全局生效配置散在 <DSH_HOME>/.dsh/ 下（与 0.2.5 之前 user-state 的旧形态同区，故只造这一份）。
+    // 旧路径锚在 <DSH_HOME>/.dsh/ 下：versionFile 在包分区目录，上跳一级即 DSH_HOME。
+    const legacyConfig = join(dirname(dirname(versionFile())), ".dsh", "dsh-mcp-manager.config");
+    const storedData = '{"version":1,"servers":["from-stray-config"]}\n';
+    mkdirSync(dirname(legacyConfig), { recursive: true });
+    writeFileSync(legacyConfig, storedData, "utf8");
+
+    await assemble();
+
+    // 判据与上格同款：内容逐字一致 + 旧路径改名留痕，证明确实是本步迁移动作。
+    expect(readFileSync(configFile(), "utf8")).toBe(storedData);
+    expect(existsSync(legacyConfig)).toBe(false);
+    expect(readFileSync(`${legacyConfig}${MIGRATED_SUFFIX}`, "utf8")).toBe(storedData);
   });
 });
 
