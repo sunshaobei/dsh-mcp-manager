@@ -3,7 +3,7 @@
  *
  * 四个声明来源，默认全部读取：
  *   - 全局：~/.agents/mcp.json 与 ~/.dsh/mcp.json
- *   - 项目：<项目根>/.agents/mcp.json 与 <项目根>/.dsh/dsh-mcp-manager/mcp.json
+ *   - 项目：<项目根>/.agents/mcp.json 与 <项目根>/.dsh/mcp.json
  *
  * 同名互斥原则：同一个服务器名在多个来源出现时，**只允许一个生效**——
  * 生效者进入对应 scope 的 store 并连接；落选者不落盘（若其 scope store
@@ -20,7 +20,6 @@ import { dirname, join } from "node:path";
 import { parseClaudeJson } from "./import.ts";
 import type { ServerConfig } from "./impl/model/type.ts";
 import { homedir } from "node:os";
-import { PACKAGE_DIR } from "../shared/interface.ts";
 
 // ------------------------------------------------------------ 来源注册表
 
@@ -45,9 +44,8 @@ export function sourcePath(id: SourceId, projectRoot?: string): string | null {
   if (id === "global-agents") return join(homedir(), ".agents", "mcp.json");
   if (id === "global-dsh") return join(homedir(), ".dsh", "mcp.json");
   if (projectRoot === undefined || projectRoot === "") return null;
-  if (id === "project-agents") return join(projectRoot, ".agents", "mcp.json");
-  // 本插件自有的项目级 mcp.json 收进包分区目录（与 .config 同区，§2.3 布局）。
-  return join(projectRoot, ".dsh", PACKAGE_DIR, "mcp.json");
+  const dir = id === "project-agents" ? ".agents" : ".dsh";
+  return join(projectRoot, dir, "mcp.json");
 }
 
 /** 生效优先级（高 → 低）。 */

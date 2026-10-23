@@ -1,5 +1,3 @@
-/** 本插件在 DSH home 下的私有目录：按 npm 包名分区，不与其它插件争用根目录。 */
-export declare const PACKAGE_DIR = "dsh-mcp-manager";
 /** 私有目录权限：同机其它用户不得列举本插件的落盘面（与 mcp.json 的 0o600 同族）。 */
 export declare const PACKAGE_DIR_MODE = 448;
 /** 目标布局的文件名（迁移契约）。 */
@@ -24,9 +22,7 @@ export declare const LEGACY_LAYOUT: {
 };
 /** 本插件私有目录。 */
 export declare function mcpManagerHome(): string;
-/** 旧版全局生效配置（迁移**读面**，新代码不得回写）：`<DSH_HOME>/.dsh/dsh-mcp-manager.config`。 */
-export declare function legacyGlobalConfigFile(): string;
-/** 全局生效配置：`<DSH_HOME>/dsh-mcp-manager/dsh-mcp-manager.config`（互斥同步唯一写面，
+/** 全局生效配置：`<DSH_HOME>/.dsh/dsh-mcp-manager.config`（互斥同步唯一写面，
  * 含 env 引用与凭据字段，0600）。四个声明来源 mcp.json 不会直接被运行面读取。 */
 export declare function configFile(): string;
 /**
@@ -48,9 +44,7 @@ export declare function statsFile(): string;
 export declare function sourcePrefsPath(): string;
 /** 存储版本刻度（升级链走到哪一版，不是插件版本——后者读 package.json）。 */
 export declare function versionFile(): string;
-/** 旧版项目级生效配置（迁移**读面**，新代码不得回写）：`<项目根>/.dsh/dsh-mcp-manager.config`。 */
-export declare function legacyProjectEffectiveConfigFile(projectRoot: string): string;
-/** 项目级生效配置：`<项目根>/.dsh/dsh-mcp-manager/dsh-mcp-manager.config`（互斥同步唯一写面）。 */
+/** 项目级生效配置：`<项目根>/.dsh/dsh-mcp-manager.config`（互斥同步唯一写面）。 */
 export declare function projectConfigFile(projectRoot: string): string;
 /**
  * 旧目录形态（迁移**读面**，新代码不得回写）：`<项目根>/.dsh/dsh-mcp-manager/mcp.json`。

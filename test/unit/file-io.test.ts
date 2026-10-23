@@ -58,7 +58,7 @@ function temporaryNames(dir: string): string[] {
 describe("布局登记（新路径 / 旧路径）", () => {
   it("新路径全部落在插件私有目录下", () => {
     expect(mcpManagerHome()).toBe(join(home, "dsh-mcp-manager"));
-    expect(configFile()).toBe(join(home, "dsh-mcp-manager", "dsh-mcp-manager.config"));
+    expect(configFile()).toBe(join(home, "dsh-mcp-manager.config"));
     expect(userStatePath()).toBe(join(mcpManagerHome(), "user-state.json"));
     expect(catalogSummaryFile()).toBe(join(mcpManagerHome(), "catalog-summary.json"));
     expect(statsFile()).toBe(join(mcpManagerHome(), "stats.json"));
@@ -77,7 +77,7 @@ describe("布局登记（新路径 / 旧路径）", () => {
 
   it("项目级新旧形态：新形态是 .config 单文件，旧目录形态只做迁移读面", () => {
     const root = join(home, "proj");
-    expect(projectConfigFile(root)).toBe(join(root, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
+    expect(projectConfigFile(root)).toBe(join(root, ".dsh", "dsh-mcp-manager.config"));
     expect(legacyProjectConfigFile(root)).toBe(join(root, ".dsh", "dsh-mcp-manager", "mcp.json"));
   });
 

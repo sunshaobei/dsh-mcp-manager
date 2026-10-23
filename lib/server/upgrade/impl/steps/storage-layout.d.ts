@@ -15,12 +15,3 @@ export declare function migrateStorageLayout(deps: UpgradeDeps): Promise<void>;
  * 项目级 just-in-time 迁移（`./project-layout.ts`）复用本函数：同文件内的 `settleOne` 即同一语义。
  */
 export declare function settleOne(source: string, target: string, initial: string | null, deps: UpgradeDeps): Promise<void>;
-/**
- * 0.2.9 → 0.2.10：生效配置 .config 归位进包分区目录——
- * 全局 `<DSH_HOME>/.dsh/dsh-mcp-manager.config` → `<DSH_HOME>/dsh-mcp-manager/`。
- *
- * 不能直接复用 `settleOne`：0.2.5 的迁移可能已在目标落过**版本化空形占位**——那不是用户数据。
- * 目标是空占位而源在场时，以源为准覆盖；目标已有真实内容才走「归档源、保目标」的常规语义。
- * 用户接管 store（`storePath` 非空）时整项不动。
- */
-export declare function relocateEffectiveConfigs(deps: UpgradeDeps): Promise<void>;
