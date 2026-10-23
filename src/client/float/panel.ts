@@ -136,8 +136,11 @@ async function doRefresh(state: McpState, actions: UiActions, cwd: string): Prom
 /** 切换面板 tab（servers / quick）。 */
 export function switchTab(state: McpState, actions: UiActions, tab: string): void {
   state.activeTab = tab;
-  for (const tabEl of document.querySelectorAll<HTMLElement>(".dm-tab")) {
-    tabEl.dataset.active = tabEl.dataset.tab === tab ? "true" : "";
+  for (const tabEl of state.card?.querySelectorAll<HTMLElement>(".dm-tab") ?? []) {
+    const active = tabEl.dataset.tab === tab;
+    if (active) tabEl.dataset.active = "true";
+    else delete tabEl.dataset.active;
+    tabEl.setAttribute("aria-pressed", String(active));
   }
   if (state.bodyEl === undefined) return;
   state.bodyEl.textContent = "";
@@ -202,7 +205,7 @@ export function showPanel(state: McpState, actions: UiActions): void {
     state.overlay!.addEventListener("click", (event: MouseEvent) => {
       if (event.target === state.overlay) close(state);
     });
-    state.card = el("div", { class: "dm-card" });
+    state.card = el("div", { class: "dm-card dm-manager-panel" });
 
     const head = el("div", { class: "dm-head" });
     head.appendChild(el("h2", { text: t("panelTitle") }));

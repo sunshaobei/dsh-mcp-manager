@@ -13,19 +13,18 @@
 :root {
   --dm-fluid: cubic-bezier(0.16, 1, 0.3, 1);
   --dm-press-scale: 0.96;
-  --dm-glass-blur: 28px;
-  --dm-glass-saturate: 220%;
-  --dm-glass-bg: rgba(24, 24, 27, 0.74);
-  --dm-glass-bg-strong: rgba(24, 24, 27, 0.86);
+  --dm-glass-blur: 0px;
+  --dm-glass-saturate: 100%;
+  --dm-glass-bg: #1c1d21;
+  --dm-glass-bg-strong: #232428;
   --dm-glass-bg-solid: #121214;
-  --dm-wash: color-mix(in srgb, #ffffff 12%, transparent);
-  --dm-card-bg: color-mix(in srgb, #ffffff 7%, transparent);
-  --dm-row-hover: color-mix(in srgb, #ffffff 7%, transparent);
-  --dm-glass-edge: rgba(255, 255, 255, 0.14);
-  --dm-glass-rim: rgba(255, 255, 255, 0.12);
-  --dm-glass-shadow:
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 24px 64px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.28);
+  --dm-wash: transparent;
+  --dm-card-bg: transparent;
+  --dm-row-hover: rgba(255, 255, 255, 0.06);
+  --dm-glass-edge: rgba(255, 255, 255, 0.16);
+  --dm-glass-rim: transparent;
+  --dm-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+
   --dm-glass-spec: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.16) 0%,
@@ -39,16 +38,15 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --dm-glass-bg: rgba(24, 24, 27, 0.74);
-    --dm-glass-bg-strong: rgba(24, 24, 27, 0.86);
-    --dm-wash: color-mix(in srgb, #ffffff 12%, transparent);
-    --dm-card-bg: color-mix(in srgb, #ffffff 7%, transparent);
-    --dm-row-hover: color-mix(in srgb, #ffffff 7%, transparent);
-    --dm-glass-edge: rgba(255, 255, 255, 0.14);
-    --dm-glass-rim: rgba(255, 255, 255, 0.12);
-    --dm-glass-shadow:
-      inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1),
-      0 24px 64px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.28);
+    --dm-glass-bg: #1c1d21;
+    --dm-glass-bg-strong: #232428;
+    --dm-wash: transparent;
+    --dm-card-bg: transparent;
+    --dm-row-hover: rgba(255, 255, 255, 0.06);
+    --dm-glass-edge: rgba(255, 255, 255, 0.16);
+    --dm-glass-rim: transparent;
+    --dm-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+
     --dm-glass-spec: linear-gradient(
       180deg,
       rgba(255, 255, 255, 0.16) 0%,
@@ -61,16 +59,15 @@ html.dark,
 [data-theme="dark"],
 [data-color-mode="dark"],
 body[data-ds-dark-theme] {
-  --dm-glass-bg: rgba(24, 24, 27, 0.74);
-  --dm-glass-bg-strong: rgba(24, 24, 27, 0.86);
-  --dm-wash: color-mix(in srgb, #ffffff 12%, transparent);
-  --dm-card-bg: color-mix(in srgb, #ffffff 7%, transparent);
-  --dm-row-hover: color-mix(in srgb, #ffffff 7%, transparent);
-  --dm-glass-edge: rgba(255, 255, 255, 0.14);
-  --dm-glass-rim: rgba(255, 255, 255, 0.12);
-  --dm-glass-shadow:
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 24px 64px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.28);
+  --dm-glass-bg: #1c1d21;
+  --dm-glass-bg-strong: #232428;
+  --dm-wash: transparent;
+  --dm-card-bg: transparent;
+  --dm-row-hover: rgba(255, 255, 255, 0.06);
+  --dm-glass-edge: rgba(255, 255, 255, 0.16);
+  --dm-glass-rim: transparent;
+  --dm-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+
   --dm-glass-spec: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.16) 0%,
@@ -81,14 +78,14 @@ body[data-ds-dark-theme] {
 
 @media (prefers-contrast: more) {
   :root {
-    --dm-glass-bg: rgba(255, 255, 255, 0.94);
-    --dm-glass-bg-strong: #ffffff;
+    --dm-glass-bg: #1c1d21;
+    --dm-glass-bg-strong: #232428;
     --dm-glass-edge: rgba(20, 30, 50, 0.22);
     /* 高对比下关闭高光 wash，wash 走纯色 */
     --dm-glass-spec: none;
     --dm-wash: #eceff3;
-    --dm-card-bg: #ffffff;
-    --dm-row-hover: #eef1f5;
+    --dm-card-bg: transparent;
+    --dm-row-hover: rgba(255, 255, 255, 0.06);
   }
   html.dark,
   [data-theme="dark"],
@@ -610,8 +607,8 @@ body[data-ds-dark-theme] {
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
-  backdrop-filter: blur(8px) saturate(120%);
-  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 .dm-overlay.dm-overlay--open {
   opacity: 1;
@@ -728,11 +725,25 @@ body[data-ds-dark-theme] {
   transform: scale(var(--dm-press-scale));
   transition-duration: 80ms;
 }
-.dm-tab[data-active] {
+.dm-tab[data-active="true"] {
   color: var(--dsw-alias-label-primary, #1c1e26);
   font-weight: 600;
-  background: var(--dm-wash);
+  background: color-mix(in srgb, currentColor 12%, transparent);
   box-shadow: 0 0 0 0.5px var(--dm-glass-edge);
+}
+.dm-manager-panel {
+  box-sizing: border-box;
+  height: min(700px, 86vh);
+  height: min(700px, 86dvh);
+}
+.dm-manager-panel > .dm-head,
+.dm-manager-panel > .dm-tabs {
+  flex-shrink: 0;
+}
+.dm-manager-panel > .dm-body {
+  flex: 1;
+  min-height: 0;
+  scrollbar-gutter: stable;
 }
 .dm-body {
   padding: 4px 18px 18px;
@@ -1029,6 +1040,35 @@ body[data-ds-dark-theme] {
   padding: 12px;
   background: color-mix(in srgb, #ffffff 40%, transparent);
   max-width: 640px;
+}
+
+/* Source configuration uses the surrounding theme surface, without a white wash. */
+.dm-quick-add .dm-paste-box,
+.dm-quick-add .dm-server {
+  background: transparent;
+}
+.dm-quick-add .dm-actions button,
+.dm-source-editor .dm-actions button {
+  background: transparent;
+  color: var(--dsw-alias-label-primary, inherit);
+  border-color: var(--dsw-alias-border-l2, currentColor);
+}
+.dm-quick-add .dm-actions button:hover:not(:disabled),
+.dm-source-editor .dm-actions button:hover:not(:disabled) {
+  background: var(--dsw-alias-interactive-bg-hover, color-mix(in srgb, currentColor 8%, transparent));
+}
+.dm-quick-add .dm-actions button:focus-visible,
+.dm-source-editor .dm-actions button:focus-visible {
+  outline: 2px solid var(--dsw-alias-state-business-primary, currentColor);
+  outline-offset: 2px;
+}
+.dm-source-editor {
+  background: var(--dsw-alias-bg-base, var(--dm-glass-bg-strong));
+}
+.dm-source-editor textarea {
+  background: transparent;
+  color: var(--dsw-alias-label-primary, inherit);
+  border-color: var(--dsw-alias-border-l2, currentColor) !important;
 }
 .dm-result {
   font-size: 12px;
@@ -1439,3 +1479,4 @@ body[data-ds-dark-theme] {
   border-radius: 50%;
   flex: none;
 }
+

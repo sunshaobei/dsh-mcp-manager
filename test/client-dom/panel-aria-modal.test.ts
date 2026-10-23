@@ -22,7 +22,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { createState } from "../../src/client/core/state.ts";
 import type { UiActions } from "../../src/client/core/state.ts";
-import { close, disposePanel, refresh, showPanel } from "../../src/client/float/panel.ts";
+import { close, disposePanel, refresh, showPanel, switchTab } from "../../src/client/float/panel.ts";
 import { bindLocale } from "../../src/vendor/shared/client/i18n.js";
 
 /** 空快照：refresh/首刷走同一 fetch 假件，返回零服务器。 */
@@ -89,6 +89,28 @@ function queryAriaModalBare(): Element | null {
 }
 
 let restoreFetch: (() => void) | undefined;
+
+it("tab switches keep exactly one active marker and leave other panels alone", () => {
+  restoreFetch = installFetchFake(new FetchLog(), { sources: [], servers: [], counts: {} });
+  const state = createState();
+  const { actions } = makeActions();
+  const unrelated = document.createElement("button");
+  unrelated.className = "dm-tab";
+  unrelated.dataset.active = "true";
+  document.body.appendChild(unrelated);
+  showPanel(state, actions);
+  expect(state.card?.classList.contains("dm-manager-panel")).toBe(true);
+  for (const tab of ["quick", "servers", "quick"]) {
+    switchTab(state, actions, tab);
+    const selected = state.card?.querySelectorAll<HTMLElement>(".dm-tab[data-active]");
+    expect(selected?.length).toBe(1);
+    expect(selected?.[0].dataset.tab).toBe(tab);
+    expect(selected?.[0].getAttribute("aria-pressed")).toBe("true");
+    expect(state.card?.querySelectorAll('.dm-tab[aria-pressed="false"]').length).toBe(1);
+    expect(unrelated.dataset.active).toBe("true");
+  }
+  disposePanel(state);
+});
 
 beforeEach(() => {
   document.body.textContent = "";

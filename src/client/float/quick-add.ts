@@ -210,7 +210,7 @@ function openJsonEditor(state: McpState, actions: UiActions, server: McpServerLi
 
 /** 构建「快速接入」页面（多源 mcp.json 编辑器）。 */
 export function buildQuickAdd(state: McpState, actions: UiActions): HTMLElement {
-  const page = el("div");
+  const page = el("div", { class: "dm-quick-add" });
 
   // ── 多源 mcp.json 编辑器（全局/项目 × .agents/.dsh）──────
   // 快速接入页不再提供手填表单：四个声明来源各一个编辑器，保存即互斥同步。
@@ -293,7 +293,7 @@ function openSourceEditor(
     style: "z-index:10001",
   });
   const card = el("div", {
-    class: "dm-card",
+    class: "dm-card dm-source-editor",
     style: "width:min(880px,94vw);max-height:88vh;display:flex;flex-direction:column;overflow:hidden",
   });
   const close = (): void => {
