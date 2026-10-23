@@ -648,7 +648,7 @@ describe("findProjectRoot", () => {
     return inRootSandbox(async (dir: string) => {
       mkdirSync(join(dir, ".git"), { recursive: true });
       const fakeHome = join(dir, "fake-home");
-      mkdirSync(join(fakeHome, ".dsh"), { recursive: true });
+      mkdirSync(join(fakeHome, ".dsh", "dsh-mcp-manager"), { recursive: true });
       process.env.DSH_HOME = fakeHome;
       return body(dir, fakeHome);
     });
@@ -674,7 +674,7 @@ describe("findProjectRoot", () => {
   it(".dsh 非 home 标记命中", async () => {
     await withSandbox(async (dir: string) => {
       const dshProj = join(dir, "dsh-proj");
-      mkdirSync(join(dshProj, ".dsh"), { recursive: true });
+      mkdirSync(join(dshProj, ".dsh", "dsh-mcp-manager"), { recursive: true });
       expect(await findProjectRoot(dshProj)).toBe(dshProj);
     });
   });
@@ -747,7 +747,7 @@ describe("#770 B2：symlink 双拼写收敛到同一项目根", () => {
     const base = makeTempDir("dsh-mcp-symlink-");
     try {
       const fakeHome = join(base, "fake-home");
-      mkdirSync(join(fakeHome, ".dsh"), { recursive: true });
+      mkdirSync(join(fakeHome, ".dsh", "dsh-mcp-manager"), { recursive: true });
       process.env.DSH_HOME = fakeHome;
       const realProj = join(base, "real-proj");
       mkdirSync(join(realProj, ".git"), { recursive: true });
@@ -836,7 +836,7 @@ describe("#770 B2：symlink 双拼写收敛到同一项目根", () => {
     const base = makeTempDir("dsh-mcp-symlink-missing-");
     try {
       const fakeHome = join(base, "fake-home");
-      mkdirSync(join(fakeHome, ".dsh"), { recursive: true });
+      mkdirSync(join(fakeHome, ".dsh", "dsh-mcp-manager"), { recursive: true });
       process.env.DSH_HOME = fakeHome;
       // 16 级窗口内无标记：findProjectRoot 回落不存在路径，realpath 抛错由 catch 接住。
       let missing = base;
@@ -1641,7 +1641,7 @@ describe("#1120 resumeReconnect 非强制可用性恢复", () => {
     const { dir, manager, log } = managerFixture("dsh-mcp-mgr2r-");
     const projRoot = join(dir, "proj");
     mkdirSync(projRoot, { recursive: true });
-    const projStore = new McpStore(join(projRoot, ".dsh", "dsh-mcp-manager.config"));
+    const projStore = new McpStore(join(projRoot, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
     // 内存态配置（不落盘）：p1 启用、p2 禁用、p3 启用。
     projStore.data = {
       version: 1,
@@ -1951,9 +1951,9 @@ describe("#1120 resume 真实链路接缝", () => {
     mkdirSync(subB, { recursive: true });
     const rootA = realpathSync(projA);
     const rootB = realpathSync(projB);
-    const storeA = new McpStore(join(projA, ".dsh", "dsh-mcp-manager.config"));
+    const storeA = new McpStore(join(projA, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
     storeA.data = { version: 1, servers: [normalizeServer(quietServer("a1"))] };
-    const storeB = new McpStore(join(projB, ".dsh", "dsh-mcp-manager.config"));
+    const storeB = new McpStore(join(projB, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
     storeB.data = { version: 1, servers: [normalizeServer(quietServer("b1"))] };
     manager.projectStores.set(rootA, storeA);
     manager.projectStores.set(rootB, storeB);
@@ -1979,9 +1979,9 @@ describe("#1120 resume 真实链路接缝", () => {
     mkdirSync(subA, { recursive: true });
     const rootA = realpathSync(projA);
     const rootB = realpathSync(projB);
-    const storeA = new McpStore(join(projA, ".dsh", "dsh-mcp-manager.config"));
+    const storeA = new McpStore(join(projA, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
     storeA.data = { version: 1, servers: [normalizeServer(quietServer("a1"))] };
-    const storeB = new McpStore(join(projB, ".dsh", "dsh-mcp-manager.config"));
+    const storeB = new McpStore(join(projB, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
     storeB.data = { version: 1, servers: [normalizeServer(quietServer("b1"))] };
     manager.projectStores.set(rootA, storeA);
     manager.projectStores.set(rootB, storeB);
@@ -2022,7 +2022,7 @@ describe("#616 reconcile / start(项目级) / refreshFromDisk 不拆毁中间层
     const { dir, manager, store } = managerFixture("dsh-mcp-mgr2x-");
     const projRoot = join(dir, "proj");
     mkdirSync(projRoot, { recursive: true });
-    const projStore = new McpStore(join(projRoot, ".dsh", "dsh-mcp-manager.config"));
+    const projStore = new McpStore(join(projRoot, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"));
     projStore.data = {
       version: 1,
       servers: [normalizeServer(quietServer("p1")), normalizeServer(quietServer("p2"))],
@@ -2812,9 +2812,9 @@ describe("#392 遗留③：disconnect 显式 scope 定位", () => {
     // @global」断言无对象可查。
     await mw.projectUnitFor("@global");
     const proj = join(homeDir, "proj");
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
-      join(proj, ".dsh", "dsh-mcp-manager.config"),
+      join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [{ name: "dup", transport: "stdio", command: "dcmd", enabled: true }],
@@ -3078,9 +3078,9 @@ describe("setSession", () => {
     // 项目目录：<dir>/proj/.git。
     const proj = join(dir, "proj");
     mkdirSync(join(proj, ".git"), { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
-      join(proj, ".dsh", "dsh-mcp-manager.config"),
+      join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [{ name: "psrv", transport: "stdio", command: "pcmd", enabled: true }],
@@ -3170,9 +3170,9 @@ describe("catalogServersFor", () => {
     store.upsert(normalizeServer(quietServer("glob")));
     const proj = join(dir, "proj");
     mkdirSync(join(proj, ".git"), { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
-      join(proj, ".dsh", "dsh-mcp-manager.config"),
+      join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [{ name: "psrv", transport: "stdio", command: "pcmd", enabled: true }],
@@ -3234,9 +3234,9 @@ describe("projectStoreFor", () => {
     store.upsert(normalizeServer(quietServer("glob")));
     const proj = join(dir, "proj");
     mkdirSync(join(proj, ".git"), { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
-      join(proj, ".dsh", "dsh-mcp-manager.config"),
+      join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [{ name: "psrv", transport: "stdio", command: "pcmd", enabled: true }],
@@ -3341,9 +3341,9 @@ describe("setSession 零连接副作用（#228）", () => {
     // 若 setSession await 连接则此测试超时）。
     const proj = join(dir, "proj");
     mkdirSync(join(proj, ".git"), { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
-      join(proj, ".dsh", "dsh-mcp-manager.config"),
+      join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [
@@ -3380,9 +3380,9 @@ describe("中间层模式 connect/disconnect 分支（#228）", () => {
     store.upsert(normalizeServer(quietServer("g1")));
     const proj = join(dir, "proj");
     mkdirSync(join(proj, ".git"), { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
-      join(proj, ".dsh", "dsh-mcp-manager.config"),
+      join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [{ name: "p1", transport: "stdio", command: "pcmd", enabled: true }],
@@ -3613,9 +3613,9 @@ describe("中间层模式 summary 投影（#228）", () => {
     const { dir, manager, store } = managerFixture("dsh-mcp-mgr2mw-");
     const proj = join(dir, "proj");
     mkdirSync(join(proj, ".git"), { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
-      join(proj, ".dsh", "dsh-mcp-manager.config"),
+      join(proj, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [{ name: "p1", transport: "stdio", command: "pcmd", enabled: true }],

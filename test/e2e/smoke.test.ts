@@ -2138,15 +2138,15 @@ describe("项目根发现（findProjectRoot / setSession）", () => {
     proj = join(base, "proj");
     projSub = join(proj, "sub");
     nomark = join(deep, "nomark");
-    mkdirSync(join(home, ".dsh"), { recursive: true });
+    mkdirSync(join(home, ".dsh", "dsh-mcp-manager"), { recursive: true });
     mkdirSync(leetcode, { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     mkdirSync(projSub, { recursive: true });
     mkdirSync(nomark, { recursive: true });
     // home 自身的项目级配置（空服务器列表，setSession 不会 spawn 进程）。
     // S2-b：项目级新形态（包分区），经 projectStoreFor 直读（旧扁平只走迁移读面）。
-    mkdirSync(join(home, ".dsh"), { recursive: true });
-    mkdirSync(join(proj, ".dsh"), { recursive: true });
+    mkdirSync(join(home, ".dsh", "dsh-mcp-manager"), { recursive: true });
+    mkdirSync(join(proj, ".dsh", "dsh-mcp-manager"), { recursive: true });
     writeFileSync(
       join(home, ".dsh", "dsh-mcp-manager.config"),
       JSON.stringify({ version: 1, servers: [] }),
@@ -2226,13 +2226,13 @@ describe("目录数据源按工作区计算（切换工作区不抖动）", () =
     rootA = join(base, "projA");
     rootB = join(base, "projB");
     subA = join(rootA, "sub");
-    mkdirSync(join(rootA, ".dsh"), { recursive: true });
-    mkdirSync(join(rootB, ".dsh"), { recursive: true });
+    mkdirSync(join(rootA, ".dsh", "dsh-mcp-manager"), { recursive: true });
+    mkdirSync(join(rootB, ".dsh", "dsh-mcp-manager"), { recursive: true });
     mkdirSync(subA, { recursive: true });
     noReconnect = { reconnect: { enabled: false } };
     // S2-b：项目级新形态直写（经 catalogServersFor→projectStoreFor 直读）。
     writeFileSync(
-      join(rootA, ".dsh", "dsh-mcp-manager.config"),
+      join(rootA, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [
@@ -2241,7 +2241,7 @@ describe("目录数据源按工作区计算（切换工作区不抖动）", () =
       }),
     );
     writeFileSync(
-      join(rootB, ".dsh", "dsh-mcp-manager.config"),
+      join(rootB, ".dsh", "dsh-mcp-manager", "dsh-mcp-manager.config"),
       JSON.stringify({
         version: 1,
         servers: [

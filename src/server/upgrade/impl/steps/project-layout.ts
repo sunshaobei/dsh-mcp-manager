@@ -8,12 +8,8 @@
  * `server/store/impl/store.ts:41-47`，建空文件会改变「外部删除=清空配置」语义）/
  * 否则搬运 + 归档 `.migrated.bak`。
  */
-import {
-  legacyProjectConfigFile,
-  legacyProjectEffectiveConfigFile,
-  projectConfigFile,
-} from "../../../shared/interface.ts";
-import type { UpgradeDeps, UpgradeLogger } from "../../deps.ts";
+import { legacyProjectConfigFile, projectConfigFile } from "../../../shared/interface.ts";
+import type { UpgradeLogger } from "../../deps.ts";
 import { settleOne } from "./storage-layout.ts";
 
 /**
@@ -24,16 +20,12 @@ import { settleOne } from "./storage-layout.ts";
  * 采点，`async` 前缀会让这条对账静默失明——签名保持同步形态、返回值是 Promise。
  */
 export function settleProjectConfig(root: string, logger: UpgradeLogger): Promise<void> {
-  const deps: UpgradeDeps = {
+  return settleOne(legacyProjectConfigFile(root), projectConfigFile(root), null, {
     logger,
     // settle 路径只用 logger：`storePath` 传空串——takenOver 是 LAYOUT 层的概念，
     // 与项目级无关。
     storePath: "",
-  };
-  // 先归位两代旧 mcp.json（包分区形态优先级更高，后 settle 者在目标缺席时落位），
-  // 再归位旧生效配置 .config（最新的系统形态，最后 settle 以保留其内容）。
-  return settleOne(legacyProjectConfigFile(root), projectConfigFile(root), null, deps)
-    .then(() => settleOne(legacyProjectEffectiveConfigFile(root), projectConfigFile(root), null, deps));
+  });
 }
 
 /**
