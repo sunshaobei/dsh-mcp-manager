@@ -15,26 +15,21 @@
   --dm-press-scale: 0.96;
   --dm-glass-blur: 28px;
   --dm-glass-saturate: 220%;
-  --dm-glass-bg: rgba(255, 255, 255, 0.76);
-  --dm-glass-bg-strong: rgba(255, 255, 255, 0.84);
-  --dm-glass-bg-solid: var(--dsw-alias-bg-base, #fdfdfd);
-  /* 主题跟随 wash：浅色用墨 8%，深色用白 12%（M1：禁止深色下写死浅色 wash） */
-  --dm-wash: color-mix(in srgb, #1c1e26 8%, transparent);
-  /* 卡片底：浅色白 42% 霜，深色白 7% 霜（配 zinc-900/74 玻璃底） */
-  --dm-card-bg: color-mix(in srgb, #ffffff 42%, transparent);
-  /* 行 hover：浅色黑 3%，深色白 7%（深色下黑 3% 近不可见） */
-  --dm-row-hover: color-mix(in srgb, #000000 3%, transparent);
-  --dm-glass-edge: rgba(20, 30, 50, 0.1);
-  --dm-glass-rim: rgba(255, 255, 255, 0.92);
+  --dm-glass-bg: rgba(24, 24, 27, 0.74);
+  --dm-glass-bg-strong: rgba(24, 24, 27, 0.86);
+  --dm-glass-bg-solid: #121214;
+  --dm-wash: color-mix(in srgb, #ffffff 12%, transparent);
+  --dm-card-bg: color-mix(in srgb, #ffffff 7%, transparent);
+  --dm-row-hover: color-mix(in srgb, #ffffff 7%, transparent);
+  --dm-glass-edge: rgba(255, 255, 255, 0.14);
+  --dm-glass-rim: rgba(255, 255, 255, 0.12);
   --dm-glass-shadow:
-    inset 0 0.5px 0 rgba(255, 255, 255, 0.95), inset 0 0 0 0.5px rgba(255, 255, 255, 0.45),
-    0 1px 1px rgba(20, 30, 50, 0.04), 0 6px 16px rgba(30, 45, 80, 0.08),
-    0 20px 48px rgba(30, 45, 80, 0.12);
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 24px 64px rgba(0, 0, 0, 0.5), 0 4px 16px rgba(0, 0, 0, 0.28);
   --dm-glass-spec: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.72) 0%,
-    rgba(255, 255, 255, 0.22) 22%,
-    rgba(255, 255, 255, 0.04) 48%,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.03) 30%,
     rgba(255, 255, 255, 0) 100%
   );
   --dm-font-ui:
