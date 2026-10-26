@@ -15,15 +15,15 @@
   --dm-press-scale: 0.96;
   --dm-glass-blur: 0px;
   --dm-glass-saturate: 100%;
-  --dm-glass-bg: var(--dsw-alias-bg-layer-1, rgba(24, 24, 27, 0.74));
-  --dm-glass-bg-strong: var(--dsw-alias-bg-base, #232428);
+  --dm-glass-bg: #ffffff;
+  --dm-glass-bg-strong: #ffffff;
   --dm-glass-bg-solid: #121214;
   --dm-wash: transparent;
   --dm-card-bg: transparent;
-  --dm-row-hover: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.06));
-  --dm-glass-edge: var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.16));
+  --dm-row-hover: rgba(15, 23, 42, 0.04);
+  --dm-glass-edge: rgba(15, 23, 42, 0.06);
   --dm-glass-rim: transparent;
-  --dm-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  --dm-glass-shadow: 0 1px 3px rgba(15, 23, 42, 0.1), 0 8px 24px rgba(15, 23, 42, 0.12);
 
   --dm-glass-spec: linear-gradient(
     180deg,
@@ -39,7 +39,7 @@
 .dm-glass {
   position: relative;
   color: var(--dsw-alias-label-primary, #1c1e26);
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   background: var(--dm-glass-bg);
   backdrop-filter: blur(var(--dm-glass-blur)) saturate(var(--dm-glass-saturate));
   -webkit-backdrop-filter: blur(var(--dm-glass-blur)) saturate(var(--dm-glass-saturate));
@@ -105,7 +105,7 @@
   flex: none;
   width: max-content;
   padding: 5px 11px;
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   border-radius: 99px;
   background: var(--dm-glass-bg);
   color: var(--dsw-alias-label-primary, #1c1e26);
@@ -219,7 +219,7 @@
   overflow: auto;
   overscroll-behavior: contain;
   color: var(--dsw-alias-label-primary, #1c1e26);
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   border-radius: 20px;
   background: var(--dm-glass-bg);
   z-index: 10;
@@ -343,7 +343,7 @@
 }
 .dm-float-head button {
   flex: none;
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   background: color-mix(in srgb, var(--dsw-alias-bg-base, #fff) 55%, transparent);
   color: var(--dsw-alias-label-primary, #1c1e26);
   border-radius: 99px;
@@ -443,7 +443,7 @@
   flex-wrap: wrap;
 }
 .dm-float-action {
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   background: color-mix(in srgb, var(--dsw-alias-bg-base, #fff) 50%, transparent);
   color: var(--dsw-alias-label-primary, #1c1e26);
   border-radius: 99px;
@@ -549,7 +549,7 @@
   display: flex;
   flex-direction: column;
   color: var(--dsw-alias-label-primary, #1c1e26);
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   border-radius: 22px;
   background: var(--dm-glass-bg-strong);
   box-shadow: var(--dm-glass-shadow);
@@ -602,7 +602,7 @@
   font-weight: 600;
 }
 .dm-head button {
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   background: color-mix(in srgb, var(--dsw-alias-bg-base, #fff) 55%, transparent);
   color: var(--dsw-alias-label-primary, #3a3f4b);
   border-radius: 99px;
@@ -722,7 +722,7 @@
   font-size: 11px;
 }
 .dm-server {
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   border-radius: 16px;
   padding: 12px 14px;
   margin-bottom: 10px;
@@ -832,7 +832,7 @@
   flex-wrap: wrap;
 }
 .dm-actions button {
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   background: color-mix(in srgb, var(--dsw-alias-bg-base, #fff) 55%, transparent);
   color: var(--dsw-alias-label-primary, #3a3f4b);
   border-radius: 99px;
@@ -895,7 +895,7 @@
 .dm-field input,
 .dm-field select,
 .dm-field textarea {
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   border-radius: 10px;
   padding: 8px 10px;
   min-height: 36px;
@@ -928,7 +928,7 @@
   gap: 8px;
 }
 .dm-form-actions button {
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   background: color-mix(in srgb, var(--dsw-alias-bg-base, #fff) 55%, transparent);
   color: var(--dsw-alias-label-primary, #3a3f4b);
   border-radius: 99px;
@@ -954,7 +954,7 @@
   line-height: 1.5;
 }
 .dm-paste-box {
-  border: 0.5px solid var(--dm-glass-edge);
+  border: none;
   border-radius: 16px;
   padding: 12px;
   background: color-mix(in srgb, #ffffff 40%, transparent);
