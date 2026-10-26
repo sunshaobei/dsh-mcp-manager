@@ -15,13 +15,13 @@
   --dm-press-scale: 0.96;
   --dm-glass-blur: 0px;
   --dm-glass-saturate: 100%;
-  --dm-glass-bg: #1c1d21;
-  --dm-glass-bg-strong: #232428;
+  --dm-glass-bg: var(--dsw-alias-bg-layer-1, rgba(24, 24, 27, 0.74));
+  --dm-glass-bg-strong: var(--dsw-alias-bg-base, #232428);
   --dm-glass-bg-solid: #121214;
   --dm-wash: transparent;
   --dm-card-bg: transparent;
-  --dm-row-hover: rgba(255, 255, 255, 0.06);
-  --dm-glass-edge: rgba(255, 255, 255, 0.16);
+  --dm-row-hover: var(--dsw-alias-interactive-bg-hover, rgba(255, 255, 255, 0.06));
+  --dm-glass-edge: var(--dsw-alias-border-l2, rgba(255, 255, 255, 0.16));
   --dm-glass-rim: transparent;
   --dm-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
 
@@ -36,87 +36,6 @@
     "Noto Sans SC", sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --dm-glass-bg: #1c1d21;
-    --dm-glass-bg-strong: #232428;
-    --dm-wash: transparent;
-    --dm-card-bg: transparent;
-    --dm-row-hover: rgba(255, 255, 255, 0.06);
-    --dm-glass-edge: rgba(255, 255, 255, 0.16);
-    --dm-glass-rim: transparent;
-    --dm-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-
-    --dm-glass-spec: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.16) 0%,
-      rgba(255, 255, 255, 0.03) 30%,
-      rgba(255, 255, 255, 0) 100%
-    );
-  }
-}
-html.dark,
-[data-theme="dark"],
-[data-color-mode="dark"],
-body[data-ds-dark-theme] {
-  --dm-glass-bg: #1c1d21;
-  --dm-glass-bg-strong: #232428;
-  --dm-wash: transparent;
-  --dm-card-bg: transparent;
-  --dm-row-hover: rgba(255, 255, 255, 0.06);
-  --dm-glass-edge: rgba(255, 255, 255, 0.16);
-  --dm-glass-rim: transparent;
-  --dm-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
-
-  --dm-glass-spec: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0.16) 0%,
-    rgba(255, 255, 255, 0.03) 30%,
-    rgba(255, 255, 255, 0) 100%
-  );
-}
-
-@media (prefers-contrast: more) {
-  :root {
-    --dm-glass-bg: #1c1d21;
-    --dm-glass-bg-strong: #232428;
-    --dm-glass-edge: rgba(20, 30, 50, 0.22);
-    /* 高对比下关闭高光 wash，wash 走纯色 */
-    --dm-glass-spec: none;
-    --dm-wash: #eceff3;
-    --dm-card-bg: transparent;
-    --dm-row-hover: rgba(255, 255, 255, 0.06);
-  }
-  html.dark,
-  [data-theme="dark"],
-  [data-color-mode="dark"],
-  body[data-ds-dark-theme] {
-    --dm-glass-bg: rgba(18, 18, 20, 0.96);
-    --dm-glass-bg-strong: #121214;
-    --dm-glass-edge: rgba(255, 255, 255, 0.28);
-    --dm-glass-spec: none;
-    --dm-wash: #2a2d34;
-    --dm-card-bg: #17171a;
-    --dm-row-hover: #26282f;
-  }
-  /* 高对比下隐藏装饰性高光层，失败行保留纯色语义底 */
-  .dm-glass::before {
-    display: none;
-  }
-  .dm-float-row.dm-float-row--fail,
-  .dm-server.dm-server--fail {
-    background: color-mix(in srgb, #e0483e 12%, var(--dm-glass-bg-strong));
-  }
-}
-
-[data-conversation-scroll] {
-  position: relative;
-}
-[data-pane="conversation"] {
-  position: relative;
-}
-
-/* 毛玻璃公共层 */
 .dm-glass {
   position: relative;
   color: var(--dsw-alias-label-primary, #1c1e26);

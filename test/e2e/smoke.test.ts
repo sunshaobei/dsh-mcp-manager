@@ -1565,12 +1565,12 @@ it("Liquid Glass 失败优先 + 浮窗 Esc + 关窗时序 + 降级存在性（#9
   const css = styleCssCompact();
   expect(css, "浮窗关闭动画 300ms").toMatch(/dm-float-out 300ms/);
   expect(css, "模态关闭动画 300ms").toMatch(/dm-modal-out 300ms/);
-  // 降级三件套存在（M2：缺一即红，防后续重构静默删 media 块）。
+  // 降级与主题契约（配色改为主机 body 主题令牌：日夜间/对比度由宿主 --dsw-alias-* 承担）。
   expect(css.includes("prefers-reduced-motion"), "reduced-motion 降级存在").toBeTruthy();
-  expect(css.includes("prefers-contrast"), "对比度降级存在").toBeTruthy();
+  expect(css.includes("--dsw-alias-bg-layer-1"), "面板底色消费主机主题令牌（日夜间跟随）").toBeTruthy();
+  expect(css.includes("--dsw-alias-border-l2"), "边框消费主机主题令牌").toBeTruthy();
   expect(css.includes("prefers-reduced-transparency"), "减透明降级存在").toBeTruthy();
-  expect(css.includes('[data-color-mode="dark"]'), "深色三选择器含 data-color-mode").toBeTruthy();
-  // 双主题 wash：变量定义 + 深色覆写存在（M1：深色下禁止写死浅色 wash）。
+  // 双主题 wash：变量定义存在。
   expect(css.includes("--dm-wash:"), "主题跟随 wash 变量存在").toBeTruthy();
   expect(css.includes("--dm-card-bg:"), "卡片底变量存在").toBeTruthy();
   expect(css.includes("--dm-row-hover:"), "行 hover 变量存在").toBeTruthy();
