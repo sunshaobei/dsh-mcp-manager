@@ -232,6 +232,16 @@ export function apply(ctx: McpClientContext): void {
         disposeSettings = undefined;
       }
     };
+    const onLocalConfig = (event: Event): void => {
+      const detail = (event as CustomEvent<ClientUiConfig>).detail;
+      if (detail === null || typeof detail !== "object") return;
+      state.mcpUiConfig = detail;
+      syncVisibility(detail);
+      state.updateFloatState?.();
+      if (state.floatOpen) renderFloatPanel(state, actions);
+    };
+    window.addEventListener("dsh-mcp-manager:config", onLocalConfig);
+    disposers.push(() => window.removeEventListener("dsh-mcp-manager:config", onLocalConfig));
     syncVisibility(state.mcpUiConfig);
     disposers.push(() => {
       disposeFloat?.();

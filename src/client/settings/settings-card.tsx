@@ -64,7 +64,14 @@ function SettingsPage(): React.ReactElement {
   const useEffect = React.useEffect;
   // 显式声明状态形状：useState(null) 会把状态推成字面 null，故显式泛型为扁平 UI 5 键。
   // cfg 是 GET /config 回执的副本，形状与跨端 ClientUiConfig 同源（DTO 单点）。
-  const [cfg, setCfg] = useState<ClientUiConfig | null>(null);
+  const [cfg, setCfgState] = useState<ClientUiConfig | null>(null);
+  // 最新配置的同步镜像：勾选入口开关会立即保存，连续点击时不能依赖尚未提交的
+  // React state（两次 set 之间读到的还是旧对象，会丢掉前一次勾选）。
+  const cfgRef = React.useRef<ClientUiConfig | null>(null);
+  const setCfg = (next: ClientUiConfig | null): void => {
+    cfgRef.current = next;
+    setCfgState(next);
+  };
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState(null as { ok: boolean; text: string } | null);
   // C5：成功提示消失定时器登记 ref，卸载清理——匿名 setTimeout 在组件卸载
@@ -99,7 +106,8 @@ function SettingsPage(): React.ReactElement {
   }
 
   const set = (patch: Partial<ClientUiConfig>) => {
-    setCfg((c) => (c !== null ? Object.assign({}, c, patch) : c));
+    const current = cfgRef.current;
+    if (current !== null) setCfg(Object.assign({}, current, patch));
   };
   // 层级基准与偏移量分开钳制：层级 1-9000（#128），偏移维持 0-2000。
   // 数字键仅四枚（position 走下拉），故收为数字键联合，索引与写回皆精确。
@@ -123,17 +131,25 @@ function SettingsPage(): React.ReactElement {
     </label>
   );
 
-  const save = async () => {
+  const save = async (patch?: Partial<ClientUiConfig>) => {
     setSaving(true);
     setMsg(null);
     try {
-      // 提交面恒为扁平 UI 5 键（与 POST /config 的白名单同源）：GET 回来的形状即提交形状，spread 超集保留。
-      const payload: ClientUiConfig = { ...cfg };
-      await api<unknown>(API.config, {
+      // 提交面恒为扁平 UI 键（与 POST /config 的白名单同源）：GET 回来的形状即提交形状，spread 超集保留。
+      const payload: ClientUiConfig = { ...(cfgRef.current ?? cfg), ...patch };
+      setCfg(payload);
+      const updated = await api<ClientUiConfig>(API.config, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(payload),
       });
+      if (updated !== null && typeof updated === "object") {
+        setCfg(updated);
+        // 本地事件让客户端入口立即按最新配置重挂载，不依赖 SSE 是否已连上/是否被节流。
+        window.dispatchEvent(
+          new CustomEvent<ClientUiConfig>("dsh-mcp-manager:config", { detail: updated }),
+        );
+      }
       setMsg({ ok: true, text: t("settingsSavedOk") });
       if (msgTimer.current !== undefined) clearTimeout(msgTimer.current);
       msgTimer.current = setTimeout(() => {
@@ -181,7 +197,10 @@ function SettingsPage(): React.ReactElement {
                 type="checkbox"
                 checked={checked}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  set({ [key]: e.target.checked } as Partial<ClientUiConfig>);
+                  const next = e.target.checked;
+                  set({ [key]: next } as Partial<ClientUiConfig>);
+                  // 入口开关勾选即保存：用户预期是「打开就能看到入口」，不应再找保存按钮。
+                  void save({ [key]: next } as Partial<ClientUiConfig>);
                 }}
               />
               {label}

@@ -387,7 +387,7 @@ pnpm --filter dsh-mcp-manager test
 
 MIT
 
-## 3.3.1 变更摘要
+## 3.3.2 变更摘要
 
 - 新增三个独立入口开关：浮窗 / 左侧导航 / 设置页；浮窗跟随会话，另两个面板可选工作区
 - 新增 `GET /api/dsh-mcp/workspaces`，嵌入面板顶部提供工作区下拉
@@ -395,3 +395,4 @@ MIT
 - 新增 `showFloat` / `showSidebar` / `showSettings` 配置键；旧配置缺省时按默认值运行
 - 面板头/标签/内容区间距调整；监听 locale 注册失败时继续绑定并回落到自带中文
 - 修复 0.2.2 插件页看不到设置卡：bundle package key 改为真实 scope 包名，并同时注册包级/行级配置卡
+- 入口开关勾选即保存并立即重挂载（本地事件，不等 SSE）；位置/偏移仍点保存
