@@ -35,6 +35,9 @@ function installFetch(): void {
     if (url.includes("/servers")) {
       return { ok: true, status: 200, json: async () => ({ servers: [], counts: {} }) };
     }
+    if (url.includes("/sources")) {
+      return { ok: true, status: 200, json: async () => ({ sources: [], prefs: {} }) };
+    }
     return { ok: true, status: 200, json: async () => ({}) };
   }) as unknown as typeof fetch;
 }
@@ -76,6 +79,25 @@ describe("EmbeddedMcpPanel", () => {
     ]);
     expect(select!.value).toBe("/tmp/proj-a");
     expect(document.querySelector(".dm-head h2")?.textContent).toBe("MCP 管理器");
+  });
+
+  it("在快速接入 tab 切换工作区会重建表单，而不是留下空白", async () => {
+    render(React.createElement(EmbeddedMcpPanel, { baseState: baseState() }));
+    await flush();
+    const quick = [...document.querySelectorAll<HTMLButtonElement>(".dm-tab")].find(
+      (button) => button.textContent?.trim() === "快速接入",
+    );
+    await act(async () => {
+      quick?.click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    });
+    const select = document.querySelector<HTMLSelectElement>(".dm-embed-select")!;
+    await act(async () => {
+      fireEvent.change(select, { target: { value: "/tmp/proj-b" } });
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    });
+    expect(document.querySelector(".dm-quick-add")).not.toBeNull();
+    expect(document.querySelector(".dm-body")?.textContent?.trim()).not.toBe("");
   });
 
   it("切换工作区后用新 cwd 重新拉取服务器列表", async () => {

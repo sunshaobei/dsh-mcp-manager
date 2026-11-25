@@ -93,8 +93,10 @@ export function mountManagerView(
     state.servers = [];
     state.counts = {};
     state.projectRoot = undefined;
-    if (state.bodyEl !== undefined) state.bodyEl.textContent = "";
     options.onWorkspaceChange?.(select.value);
+    // 按**当前 tab** 重建内容：快速接入页不会在 refresh 完成时被重绘，
+    // 只清空 body 会得到一张空白面板（切换工作区后实测）。
+    switchTab(state, actions, state.activeTab);
     void refresh(state, actions);
   });
   workspaceWrap.appendChild(select);
