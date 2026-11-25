@@ -316,7 +316,7 @@ await ctx.mcpManagerPro.registerServer({
   change detected during the wait aborts the save and preserves the external contents.
 - All `/api/dsh-mcp/*` routes are restricted to loopback access (non-loopback → 403 / wrong
   method → 405)
-- **stdio subprocess environment sanitization (official dsh-mcp-client semantics)**: sanitization
+- **stdio subprocess environment sanitization (host MCP client semantics)**: sanitization
   applies to the **inherited parent environment** only — credential-shaped names (`KEY` /
   `PASSWORD` / `SECRET` / `TOKEN`) and every `DSH_*` variable are stripped from the parent
   environment so host secrets never leak into the MCP subprocess implicitly; **an `env` entry you
@@ -420,7 +420,7 @@ pnpm --filter dsh-mcp-manager test
 ## Known Limitations
 
 - **The `mcp__` registration name is internal only**: servers are mounted by the official
-  dsh-mcp-client, so the host registers tools as `mcp__<id>__<tool>`, where `id` is a
+  host MCP client, so the host registers tools as `mcp__<id>__<tool>`, where `id` is a
   **random short string** allocated per (workspace, server) — stable within one plugin
   assembly, opaque, and not derivable from the server name; it changes on plugin reload or
   host restart. Those names are removed from the model's tool list, and the model reaches
