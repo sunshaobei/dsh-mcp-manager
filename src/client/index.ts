@@ -84,18 +84,26 @@ export function apply(ctx: McpClientContext): void {
     setFallbackDict(zh as unknown as Record<string, string>); // 宿主 locale 缺席时回落自带中文文案
     const locale = ctx.get("locale");
     let unsubLocale: (() => void) | undefined;
-    if (locale && typeof locale.register === "function") {
-      try {
-        locale.register(NS, { zh: zh, en: en });
-        bindLocale(locale, NS);
-        if (typeof locale.subscribe === "function" && typeof locale.getSnapshot === "function") {
-          unsubLocale = locale.subscribe(function () {
-            bindLocale(locale, NS);
-          });
+    if (locale) {
+      // register 与 bind 分开：重复 apply（HMR/二次装载）时 register 可能因命名空间已存在
+      // 而抛错，但 bind 仍应继续——否则 t 停在回落 key 的初始实现，界面直接显示
+      // panelTitle / tabServers 这类原始 key（0.2.2 热更新后实测）。
+      if (typeof locale.register === "function") {
+        try {
+          locale.register(NS, { zh: zh, en: en });
+        } catch (error) {
+          console.warn("[dsh-mcp-manager] locale 注册失败，继续绑定已有字典：", error);
         }
-      } catch (error) {
-        console.warn("[dsh-mcp-manager] locale 注册失败：", error);
       }
+      bindLocale(locale, NS);
+      if (typeof locale.subscribe === "function" && typeof locale.getSnapshot === "function") {
+        unsubLocale = locale.subscribe(function () {
+          bindLocale(locale, NS);
+        });
+      }
+    } else {
+      // 宿主没有 locale 服务时也要装上自带字典，而不是让 t 保持「原样返回 key」。
+      bindLocale(undefined, NS);
     }
 
     // 注入样式（幂等；容错：重复 apply 不重复创建——幂等实现收敛 shared/client/ensure-style）

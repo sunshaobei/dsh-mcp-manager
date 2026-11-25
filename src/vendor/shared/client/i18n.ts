@@ -83,7 +83,14 @@ export function bindLocale(
   ns: string,
 ): void {
   if (locale && typeof locale.bind === "function") {
-    t = locale.bind(ns);
+    const bound = locale.bind(ns);
+    // 宿主 bind 在命名空间缺失/注册失败时可能原样返回 key。此时用自带字典兜底，
+    // 避免 UI 直接暴露 panelTitle / tabServers 这类内部 key（0.2.2 HMR 后实测）。
+    t = (key, params) => {
+      const text = bound(key, params);
+      if (text === key && fallbackDict !== null) return fromFallback(key, params);
+      return text;
+    };
   } else if (fallbackDict !== null) {
     t = (key, params) => fromFallback(key, params);
   }
