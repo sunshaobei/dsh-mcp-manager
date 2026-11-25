@@ -29,6 +29,13 @@ export interface RouteHelpers {
 }
 /** UI 配置读写（GET 豁免 loopback；写操作 loopback-only，未知顶层键 400）。 */
 export declare function buildConfigRoute(manager: RoutesManager, helpers: RouteHelpers): WebRoute;
+/**
+ * GET /workspaces：嵌入面板的工作区下拉数据源。
+ *
+ * 只读、loopback-only。宿主 `workspaceRegistry` 缺席（老宿主 / 夹具）时返回空
+ * 数组，客户端回落「仅全局 + 当前会话」，不把缺服务变成错误。
+ */
+export declare function buildWorkspacesRoute(manager: RoutesManager, helpers: RouteHelpers): WebRoute;
 /** 服务器集合 CRUD：GET 快照（纯读）/ POST 添加 / PATCH 更新 / DELETE 删除。 */
 export declare function buildServersRoute(manager: RoutesManager, helpers: RouteHelpers): WebRoute;
 /** 会话切换（跟随会话的项目级 MCP）。 */

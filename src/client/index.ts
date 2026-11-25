@@ -42,8 +42,9 @@ import { refresh, switchTab, close, showPanel, disposePanel } from "./float/pane
 import { resetForm, beginEdit } from "./float/quick-add.ts";
 import { toggleFloat, mountFloat, renderFloatPanel } from "./float/float.ts";
 import { bindSession, rebindSession } from "./core/session.ts";
-import { SettingsCard } from "./settings/settings-card.tsx";
-import { bindLocale, setFallbackDict } from "../vendor/shared/client/i18n.js";
+import { SettingsCard, type SettingsCardProps } from "./settings/settings-card.tsx";
+import { EmbeddedMcpPanel, McpNavIcon } from "./embed/panel.tsx";
+import { bindLocale, setFallbackDict, t } from "../vendor/shared/client/i18n.js";
 import { MCP_MANAGER_IDENTITY, SSE_FRAMES } from "../shared/interface.ts";
 import { zh, en, type McpLocaleKey } from "./locales.ts";
 // 显式类型导入，先把 @deepseek-ai/dsh-client-ui-slots 拉进模块解析图：上游发布物
@@ -113,7 +114,19 @@ export function apply(ctx: McpClientContext): void {
 
     // 页面只在 Host 服务 canonical settings namespace 时注册；namespace 撤下时，
     // whileServed 会调用 register 回调返回的 disposer，移除 keyed slot 注册。
-    const slots = ctx.get("slots");
+    //
+    // 官方 SlotRegistry 的 keyed union 只包含「本包已 import 的宿主 slot 声明」；
+    // sidebar.panellist / main / settings.section 的声明分属不同宿主包，且
+    // sidebar.panellist 不在本包依赖树里。运行时仍按名字注册，故这里收窄成
+    // 「按字符串注册」的最小面，避免为一个 slot 声明把整套 UI 包拉进依赖。
+    type AnySlotRegistry = {
+      inject(name: string, callback: () => (() => void) | void): () => void;
+      register<P>(
+        options: Record<string, unknown> & { name: string },
+        component: React.ComponentType<P>,
+      ): () => void;
+    };
+    const slots = ctx.get("slots") as unknown as AnySlotRegistry | undefined;
     const configForms = ctx.get("configForms") as ConfigFormsService | undefined;
     if (slots !== undefined && configForms !== undefined) {
       ctx.effect(
@@ -126,7 +139,7 @@ export function apply(ctx: McpClientContext): void {
                   key: MCP_MANAGER_IDENTITY.rowConfigKey,
                   locale: NS,
                 },
-                (props) => React.createElement(SettingsCard, props),
+                (props: SettingsCardProps) => React.createElement(SettingsCard, props),
               ),
             ),
           ),
@@ -134,13 +147,100 @@ export function apply(ctx: McpClientContext): void {
       );
     }
 
-    disposers.push(mountFloat(ctx, state, actions));
+    // 三个入口独立开关：浮窗 / 左侧导航 / 设置页。配置默认浮窗开、其余关，
+    // 保存后经 SSE ui-config-changed 调 syncVisibility 就地挂载/注销，无需重启。
+    let disposeFloat: (() => void) | undefined;
+    let disposeSidebar: (() => void) | undefined;
+    let disposeSettings: (() => void) | undefined;
+    const registerSidebar = (): (() => void) | undefined => {
+      if (slots === undefined) return undefined;
+      const disposers: (() => void)[] = [];
+      try {
+        disposers.push(
+          slots.inject("sidebar.panellist", () =>
+            slots.register(
+              {
+                name: "sidebar.panellist",
+                id: "mcp",
+                order: 20,
+                label: () => t("panelTitle"),
+              },
+              McpNavIcon,
+            ),
+          ),
+        );
+        disposers.push(
+          slots.inject("main", () =>
+            slots.register({ name: "main", key: "mcp" }, () =>
+              React.createElement(EmbeddedMcpPanel, { baseState: state }),
+            ),
+          ),
+        );
+      } catch (error) {
+        console.warn("[dsh-mcp-manager] 左侧导航入口注册失败：", error);
+        for (const dispose of disposers.splice(0)) dispose();
+        return undefined;
+      }
+      return () => {
+        for (const dispose of disposers.splice(0).reverse()) dispose();
+      };
+    };
+    const registerSettings = (): (() => void) | undefined => {
+      if (slots === undefined) return undefined;
+      try {
+        return slots.inject("settings.section", () =>
+          slots.register(
+            {
+              name: "settings.section",
+              id: "mcp",
+              order: 30,
+              label: () => t("panelTitle"),
+              locale: NS,
+            },
+            () => React.createElement(EmbeddedMcpPanel, { baseState: state }),
+          ),
+        );
+      } catch (error) {
+        console.warn("[dsh-mcp-manager] 设置页入口注册失败：", error);
+        return undefined;
+      }
+    };
+    const syncVisibility = (cfg: ClientUiConfig) => {
+      if (cfg.showFloat !== false) {
+        if (disposeFloat === undefined) disposeFloat = mountFloat(ctx, state, actions);
+      } else {
+        disposeFloat?.();
+        disposeFloat = undefined;
+      }
+      if (cfg.showSidebar === true) {
+        if (disposeSidebar === undefined) disposeSidebar = registerSidebar();
+      } else {
+        disposeSidebar?.();
+        disposeSidebar = undefined;
+      }
+      if (cfg.showSettings === true) {
+        if (disposeSettings === undefined) disposeSettings = registerSettings();
+      } else {
+        disposeSettings?.();
+        disposeSettings = undefined;
+      }
+    };
+    syncVisibility(state.mcpUiConfig);
+    disposers.push(() => {
+      disposeFloat?.();
+      disposeSidebar?.();
+      disposeSettings?.();
+      disposeFloat = undefined;
+      disposeSidebar = undefined;
+      disposeSettings = undefined;
+    });
     disposers.push(bindSession(ctx, state, actions));
 
     // 读取 settings.yaml 中的 UI 配置（右上/右下 + 偏移量），不依赖设置页。
     api<ClientUiConfig>(state.API.config)
       .then((cfg: ClientUiConfig) => {
         if (cfg !== null && typeof cfg === "object") state.mcpUiConfig = cfg;
+        syncVisibility(state.mcpUiConfig);
         state.updateFloatState?.();
       })
       .catch(() => {});
@@ -331,6 +431,7 @@ export function apply(ctx: McpClientContext): void {
                 if (cfg !== null && typeof cfg === "object") {
                   state.mcpUiConfig = cfg;
                 }
+                syncVisibility(state.mcpUiConfig);
                 state.updateFloatState?.();
                 if (state.floatOpen) renderFloatPanel(state, actions);
               })

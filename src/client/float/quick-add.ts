@@ -8,6 +8,7 @@
 
 import { el } from "../core/dom.ts";
 import { api, cwdQueryOf } from "../core/api.ts";
+import { mergeMcpServersJson } from "./import-file.ts";
 import { t } from "../../vendor/shared/client/i18n.js";
 import type { McpState, UiActions } from "../core/state.ts";
 import type { McpManagerServerInput, McpServerListEntry } from "../../shared/interface.ts";
@@ -251,6 +252,10 @@ export function buildQuickAdd(state: McpState, actions: UiActions): HTMLElement 
         }
         const result = el("div", { class: "dm-result" });
         card.appendChild(result);
+        const importButton = el("button", {
+          text: t("srcImport"),
+          onclick: () => pickImportFile(source, source.text, result, currentCwd, loadSources, actions, state.API.sourceSave),
+        });
         card.appendChild(
           el("div", {
             class: "dm-actions",
@@ -260,6 +265,7 @@ export function buildQuickAdd(state: McpState, actions: UiActions): HTMLElement 
                 text: t("srcEdit"),
                 onclick: () => openSourceEditor(state, actions, source, currentCwd, result, loadSources),
               }),
+              importButton,
             ],
           }),
         );
@@ -277,6 +283,59 @@ export function buildQuickAdd(state: McpState, actions: UiActions): HTMLElement 
   page.appendChild(srcSection);
 
   return page;
+}
+
+/** 选择本地 JSON 文件，合并进指定来源并保存（同名保留已有，见 import-file.ts）。 */
+function pickImportFile(
+  source: { id: string; path: string | null; exists: boolean; text: string | null },
+  existingText: string | null,
+  result: HTMLElement,
+  currentCwd: () => Record<string, unknown>,
+  onSaved: () => Promise<void>,
+  actions: UiActions,
+  saveUrl: string,
+): void {
+  const input = el("input", {
+    type: "file",
+    accept: ".json,application/json",
+    style: "display:none",
+  }) as HTMLInputElement;
+  input.addEventListener("change", () => {
+    const file = input.files?.[0];
+    input.remove();
+    if (file === undefined) return;
+    void (async () => {
+      try {
+        const imported = await file.text();
+        const merged = mergeMcpServersJson(existingText, imported);
+        if (!merged.ok) {
+          result.textContent = t("importFail", { msg: merged.error ?? "" });
+          return;
+        }
+        if (merged.added === 0) {
+          result.textContent = t("importNoNew", { skipped: merged.skipped });
+          return;
+        }
+        await api<unknown>(saveUrl, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ id: source.id, text: merged.text, ...currentCwd() }),
+        });
+        result.textContent = t("importDone", {
+          added: merged.added,
+          skipped: merged.skipped,
+        });
+        await onSaved();
+        await actions.refresh();
+      } catch (error) {
+        result.textContent = t("importFail", {
+          msg: error instanceof Error ? error.message : String(error),
+        });
+      }
+    })();
+  });
+  document.body.appendChild(input);
+  input.click();
 }
 
 /** 来源 mcp.json 大编辑器弹层：卡片只留「编辑」入口，点开整卡大编辑框（保存即互斥同步）。 */

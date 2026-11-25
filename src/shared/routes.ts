@@ -1,12 +1,12 @@
 /**
  * dsh-mcp-manager — 跨端路由契约单点（D5，#767 B1.5a）。
  *
- * 11 条 /api/dsh-mcp/* 路径同时被宿主装配数组与客户端取数面使用，围栏数据（方法白名单
+ * /api/dsh-mcp/* 路径同时被宿主装配数组与客户端取数面使用，围栏数据（方法白名单
  * 与 loopback 豁免）是宿主唯一执法点；物理定义都只在本文件。
  */
 
 /**
- * 路由路径清单（11 条；键序与值均为跨端契约，不得重排或改写）。
+ * 路由路径清单（键序与值均为跨端契约，不得重排或改写）。
  *
  * 刻意不写 as const：ROUTES 是包入口的既有导出，其公开类型必须是 `{ servers: string; … }`
  * （加 as const 会把公开类型收紧成字面量联合，导出面快照立刻判红）——提取常量不该顺带改 ABI。
@@ -26,6 +26,7 @@ export const ROUTES = {
   events: "/api/dsh-mcp/events",
   health: "/api/dsh-mcp/health",
   toolDisable: "/api/dsh-mcp/tool-disable",
+  workspaces: "/api/dsh-mcp/workspaces",
 };
 
 /** 路由名（ROUTES 的键）。 */
@@ -59,4 +60,5 @@ export const ROUTE_FENCE: Record<RouteName, RouteFence> = {
   events: { guarded: ["GET"], loopbackExempt: [] },
   health: { guarded: ["GET"], loopbackExempt: [] },
   toolDisable: { guarded: ["PATCH"], loopbackExempt: [] },
+  workspaces: { guarded: ["GET"], loopbackExempt: [] },
 };

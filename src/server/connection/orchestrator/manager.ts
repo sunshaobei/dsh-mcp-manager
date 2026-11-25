@@ -618,6 +618,19 @@ export class McpManager {
     return orchestratorPorts.get().configModel.normalizeUiConfig(this.uiConfigSource());
   }
 
+  /** 工作区列表（嵌入面板的下拉）：只读宿主 registry，缺服务时返回空数组。 */
+  listWorkspaces(): Array<{ id: string; name: string; path: string }> {
+    const registry = this.ctx.get("workspaceRegistry") as
+      | { list?: () => Array<{ id?: unknown; path: string; title?: string }> }
+      | undefined;
+    const rows = registry?.list?.() ?? [];
+    return rows.map((workspace) => ({
+      id: String(workspace.id ?? workspace.path),
+      name: workspace.title || workspace.path,
+      path: workspace.path,
+    }));
+  }
+
   /**
    * 写入浮窗 UI 配置（/api/dsh-mcp/config POST）。
    * 把客户端扁平形态归一化为 `Config.ui` 嵌套补丁，经设置命名空间持久化

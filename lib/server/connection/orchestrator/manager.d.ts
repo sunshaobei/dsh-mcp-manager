@@ -171,6 +171,12 @@ export declare class McpManager {
     constructor(ctx: Context, store: McpStore);
     /** 读取 settings 命名空间中的 MCP UI 配置（供 /api/dsh-mcp/config 返回）。 */
     uiConfig(): ClientUiConfig;
+    /** 工作区列表（嵌入面板的下拉）：只读宿主 registry，缺服务时返回空数组。 */
+    listWorkspaces(): Array<{
+        id: string;
+        name: string;
+        path: string;
+    }>;
     /**
      * 写入浮窗 UI 配置（/api/dsh-mcp/config POST）。
      * 把客户端扁平形态归一化为 `Config.ui` 嵌套补丁，经设置命名空间持久化

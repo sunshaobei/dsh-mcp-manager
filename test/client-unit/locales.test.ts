@@ -19,7 +19,7 @@
  * - 键集合双向完全一致（en 不得漏键或多数，zh 不得多数）。
  * - 两侧占位符 token 集合逐键一致（`<{msg}>` 在 zh 丢��而 en 还在 → 插值出 "undefined"）。
  * - 两侧取值均非空、非纯空白（空串是「界面某处显示空白」的最常见来源）。
- * - 占位符只允许 {name} / {n} / {msg} / {status} / {tools} / {parts} / {names} 白名单。
+ * - 占位符只允许 {name} / {n} / {msg} / {status} / {tools} / {parts} / {names} / {added} / {skipped} 白名单。
  *
  * 注：本仓的 stryker `excludedMutations` 排除了 StringLiteral / ObjectLiteral /
  * ArrayLiteral / TemplateLiteral，故 locales.ts 作为纯字面量表**在变异面上不产生任何
@@ -74,6 +74,11 @@ const DICTIONARY: ReadonlyArray<readonly [string, string, string]> = [
   ["floatEmptyTitle", "还没有 MCP 服务器", "No MCP servers yet"],
   ["floatEmptyCta", "去添加", "Add one"],
   ["panelTitle", "MCP 管理器", "MCP manager"],
+  ["workspaceLabel", "工作区", "Workspace"],
+  ["workspaceGlobal", "仅全局", "Global only"],
+  ["settingsShowFloat", "右上角浮窗（跟随当前工作区）", "Floating pill (follows the current workspace)"],
+  ["settingsShowSidebar", "左侧导航入口", "Left sidebar entry"],
+  ["settingsShowSettings", "设置页入口", "Settings page entry"],
   ["tabServers", "服务器", "Servers"],
   ["tabQuickAdd", "快速接入", "Quick add"],
   ["countsConnected", "运行中 {n}", "running {n}"],
@@ -134,6 +139,9 @@ const DICTIONARY: ReadonlyArray<readonly [string, string, string]> = [
   ["srcUngrouped", "其他（未声明来源）", "Other (no declared source)"],
   ["srcQuickSetup", "快速配置该来源", "Quick-configure this source"],
   ["srcEdit", "编辑", "Edit"],
+  ["srcImport", "导入", "Import"],
+  ["importDone", "导入完成：新增 {added} 台，跳过 {skipped} 台同名", "Imported: {added} added, {skipped} skipped (same name)"],
+  ["importNoNew", "没有新增：{skipped} 台同名已存在", "Nothing added: {skipped} same-name server(s) already exist"],
   ["srcSave", "保存并同步", "Save & sync"],
   ["srcSavedOk", "已保存并同步：{names}", "Saved & synced: {names}"],
   ["srcMutexRemoved", "互斥移除同名：{names}", "Mutex-removed same-name: {names}"],
@@ -235,7 +243,7 @@ describe("locales：机械判据（翻译漂移的通用抓法）", () => {
   });
 
   it("占位符只取白名单（新增占位符必须同时改渲染期插值调用，否则静默失效）", () => {
-    const allowed = new Set(["name", "n", "msg", "status", "tools", "parts", "names"]);
+    const allowed = new Set(["name", "n", "msg", "status", "tools", "parts", "names", "added", "skipped"]);
     for (const [key, zhValue, enValue] of DICTIONARY) {
       for (const token of [...placeholdersOf(zhValue), ...placeholdersOf(enValue)]) {
         expect(allowed.has(token), `${key} 的占位符 {${token}} 不在白名单`).toBe(true);

@@ -117,7 +117,7 @@ describe("constants：状态 → 字典键映射", () => {
 });
 
 describe("constants：路径表投影", () => {
-  it("14 条路由全部投影到客户端 API 键面（漏投影即红）", () => {
+  it("15 条路由全部投影到客户端 API 键面（漏投影即红）", () => {
     expect(Object.keys(API).sort()).toEqual([
       "config",
       "connect",
@@ -133,6 +133,7 @@ describe("constants：路径表投影", () => {
       "sourceSave",
       "sources",
       "toolDisable",
+      "workspaces",
     ]);
   });
 

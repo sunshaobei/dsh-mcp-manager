@@ -17,4 +17,10 @@ export interface UiPlacementConfig {
     };
     /** 浮窗层级基准（clamp 1–9000；胶囊与点击后弹出的主面板同取该配置值，模态管理面板独立不受影响）。 */
     zIndexBase: number;
+    /** 右上角浮窗胶囊（跟随当前会话工作区）。 */
+    showFloat?: boolean;
+    /** 左侧主导航入口（完整管理面板，工作区可选）。 */
+    showSidebar?: boolean;
+    /** 设置页入口（完整管理面板，工作区可选）。 */
+    showSettings?: boolean;
 }

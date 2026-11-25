@@ -168,6 +168,26 @@ function SettingsPage(): React.ReactElement {
             <option value="bottom-left">{t("posBottomLeft")}</option>
           </select>
         </div>
+        <div className="dm-set-row dm-set-checks">
+          {(
+            [
+              ["showFloat", t("settingsShowFloat"), cfg.showFloat !== false],
+              ["showSidebar", t("settingsShowSidebar"), cfg.showSidebar === true],
+              ["showSettings", t("settingsShowSettings"), cfg.showSettings === true],
+            ] as ReadonlyArray<[ "showFloat" | "showSidebar" | "showSettings", string, boolean ]>
+          ).map(([key, label, checked]) => (
+            <label className="dm-set-check" key={key}>
+              <input
+                type="checkbox"
+                checked={checked}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                  set({ [key]: e.target.checked } as Partial<ClientUiConfig>);
+                }}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
         <div className="dm-set-row">
           {numInput("offsetX", t("offsetX"))}
           {numInput("offsetY", t("offsetY"))}

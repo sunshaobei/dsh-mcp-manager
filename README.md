@@ -1,10 +1,12 @@
-# dsh-mcp-manager
-[![npm](https://img.shields.io/npm/v/dsh-mcp-manager)](https://www.npmjs.com/package/dsh-mcp-manager)
-[![GitHub Releases](https://img.shields.io/github/v/release/wingsky-1/dsh-plugin-hub)](https://github.com/wingsky-1/dsh-plugin-hub/releases)
+# @sunshaobei/dsh-mcp-manager
+[![npm](https://img.shields.io/npm/v/@sunshaobei/dsh-mcp-manager)](https://www.npmjs.com/package/@sunshaobei/dsh-mcp-manager)
+[![GitHub Releases](https://img.shields.io/github/v/release/sunshaobei/dsh-mcp-manager)](https://github.com/sunshaobei/dsh-mcp-manager/releases)
 
-DSH（DeepSeek Harness）的 **MCP 服务器管理插件**：会话界面右上角浮窗 + 分级面板 +
-快速接入（手工表单 + 粘贴 mcpServers JSON 导入，**不预设任何服务器**）。
-连接与协议交官方 `@deepseek-ai/dsh-mcp-client`（宿主 cordis loader 按包名装载到 dsh 安装内的副本），本插件只留配置面与模型可见面；官方客户端不随包分发，也无需额外安装。
+DSH（DeepSeek Harness）的 **MCP 服务器管理插件**：右上角浮窗、左侧导航入口、设置页入口
+三选多开（各自可关）；完整管理面板可选工作区；快速接入支持 JSON 文本粘贴与
+**本地 mcp.json 文件一键导入（与已有内容合并）**，**不预设任何服务器**。
+连接与协议交宿主自带的 MCP 客户端（cordis loader 按包名装载到 dsh 安装内的副本），
+本插件只留配置面与模型可见面；客户端不随包分发，也无需额外安装。
 
 模型可见面只有四个原子工具（`ws_mcp_list` / `ws_mcp_detail` / `ws_mcp_search` /
 `ws_mcp_call`）：项目级、全局级与运行时注入的封装定义条目**一律经中间层访问**，两级发现
@@ -22,7 +24,7 @@ root `@global`。宿主仍按 `mcp__<id>__<tool>` 注册工具（`id` 是本次�
 ## 一键安装
 
 ```sh
-dsh plugin --profile web add dsh-mcp-manager
+dsh plugin --profile web add @sunshaobei/dsh-mcp-manager
 ```
 
 > 安装 / 卸载 / 更新后都需**重启一次** `dsh web`（bundle 层只在启动时组合）生效。
@@ -54,19 +56,19 @@ dsh plugin --profile web add dsh-mcp-manager
 ### 安装插件（add）
 
 ```sh
-dsh plugin --profile web add dsh-mcp-manager
+dsh plugin --profile web add @sunshaobei/dsh-mcp-manager
 ```
 
 ### 卸载插件（remove）
 
 ```sh
-dsh plugin --profile web remove dsh-mcp-manager
+dsh plugin --profile web remove @sunshaobei/dsh-mcp-manager
 ```
 
 ### 更新插件（update）
 
 ```sh
-dsh plugin --profile web update dsh-mcp-manager
+dsh plugin --profile web update @sunshaobei/dsh-mcp-manager
 ```
 
 > 安装 / 卸载 / 更新后都需**重启一次** `dsh web`（bundle 层只在启动时组合）生效。
@@ -76,7 +78,7 @@ dsh plugin --profile web update dsh-mcp-manager
 省略 `@版本号` 即安装默认 latest（推荐）。仅当 registry 尚未同步到最新、或最新版在你的环境有问题时，在包名后追加 `@版本号`：
 
 ```sh
-dsh plugin --profile web add dsh-mcp-manager@<版本号>
+dsh plugin --profile web add @sunshaobei/dsh-mcp-manager@<版本号>
 ```
 
 ### 未全局安装 dsh
@@ -84,9 +86,9 @@ dsh plugin --profile web add dsh-mcp-manager@<版本号>
 若本机没有全局 `dsh` 命令，用 `npx` 临时拉起（底层调用 `pnpm`，仍需本机装好 `pnpm` 与 `Node.js`）：
 
 ```sh
-npx @deepseek-ai/dsh plugin --profile web add dsh-mcp-manager
-npx @deepseek-ai/dsh plugin --profile web remove dsh-mcp-manager
-npx @deepseek-ai/dsh plugin --profile web update dsh-mcp-manager
+npx @deepseek-ai/dsh plugin --profile web add @sunshaobei/dsh-mcp-manager
+npx @deepseek-ai/dsh plugin --profile web remove @sunshaobei/dsh-mcp-manager
+npx @deepseek-ai/dsh plugin --profile web update @sunshaobei/dsh-mcp-manager
 ```
 
 ## 能力
@@ -98,7 +100,7 @@ npx @deepseek-ai/dsh plugin --profile web update dsh-mcp-manager
 | 分级展示 | 运行中 / 连接中 / 重连中 / 未连接 / 已停用 / 失败；每台显示传输、端点、工具数；客户端未知状态按「未连接」投影、不丢卡（C13 统一口径） |
 | 服务器管理 | 增删改查（可选项目级/全局）、连接 / 断开 / 重连；配置版本化 JSON，原子写入 |
 | 两种传输 | stdio（本地子进程，env 支持 `${ENV}` 引用）与 streamable-http（远程，header 支持 `${ENV}` 引用，自动回传 `Mcp-Session-Id`） |
-| JSON 导入 | 粘贴 mcpServers JSON 文本导入（仅 JSON 格式；不扫描任何应用配置文件） |
+| JSON 导入 | 粘贴 mcpServers JSON 文本导入；快速接入每个 mcp.json 来源新增「导入」按钮，选择本地 JSON 文件后与已有内容合并（同名保留已有，新名追加，保留其它顶层键） |
 | 模型工具 | 全部服务器（项目级 / 全局 / runtime 注入）一律经中间层四个原子工具访问：`ws_mcp_list` / `ws_mcp_detail` / `ws_mcp_search` / `ws_mcp_call`，不同工作空间互不冲突；宿主注册名 `mcp__<id>__<tool>`（`id` 按 (工作空间, 服务器名) 随机分配、同一次装配内稳定、不透明；工具名仍受 64 字符 / `[A-Za-z0-9_-]` / 冲突哈希后缀约束）会被从模型工具列表摘除——模型不可见、不得直呼 |
 | 工作空间隔离 | 中间层按调用方会话当前 cwd 路由到对应工作空间的连接池；server 全名 `@<root>/<server>` 一致性校验防跨空间串台 |
 | 断线重连 | 有界指数退避（500ms 起、30s 上限、10 次后停止后台重试；用户手动连接或 ws_mcp_call 触发可再试） |
@@ -110,7 +112,7 @@ npx @deepseek-ai/dsh plugin --profile web update dsh-mcp-manager
 
 配置页入口：**Plugin Manager → dsh-mcp-manager → Configure**。浮窗按钮（MCP 胶囊）的位置与偏移（`position` / `offset`）在此保存，canonical row id 为 `dsh-mcp-manager`，settings namespace 为 `dsh-mcp-manager`，保存后即时生效。
 
-> 非回环 LAN 地址（例如 `192.168.*:3081`）默认不提供持久化设置面，Configure 按钮按 DSH 安全策略隐藏；请从 `127.0.0.1:3080` / `127.0.0.1:3081` 或 SSH 回环隧道管理。只有在可信 LAN、明确接受共享控制面风险时，才通过 dsh-lan-proxy 的 `ownsHostCompat` 恢复远程设置入口。
+> 非回环 LAN 地址默认不提供持久化设置面，Configure 按钮按 DSH 安全策略隐藏；请从 `127.0.0.1:3080` / `127.0.0.1:3081` 或 SSH 回环隧道管理。
 
 | 键 | 值域 | 默认 |
 | --- | --- | --- |
@@ -119,6 +121,13 @@ npx @deepseek-ai/dsh plugin --profile web update dsh-mcp-manager
 | `offset.y` | 非负整数（垂直偏移，单位 px） | `8` |
 | `offset.blankY` | 非负整数（空白会话垂直偏移，单位 px） | `40` |
 | `zIndexBase` | 整数，clamp 到 1–9000（浮窗层级基准；**胶囊与点击后弹出的主面板同取该配置值**，模态管理面板不受影响） | `10` |
+| `showFloat` | 右上角浮窗胶囊（跟随当前会话工作区） | `true` |
+| `showSidebar` | 左侧主导航入口（完整管理面板） | `false` |
+| `showSettings` | 设置页入口（完整管理面板） | `false` |
+
+三个开关相互独立：浮窗跟随当前会话工作区；左侧导航/设置页面板顶部有**工作区下拉**
+（「仅全局」+ 已登记工作区），不跟随会话，显式选择要管理的项目级配置。取消勾选会
+真正注销对应入口（不是隐藏 DOM），保存后经 SSE 即时生效。
 
 #### Settings namespace
 
@@ -134,10 +143,7 @@ DSH 官方 importer 会按同名 section 直接导入 `dsh-mcp-manager`；本插
 `env(safe-area-inset-*)` 恒 0 时自然退化为普通 clamp）；软键盘弹出经
 `visualViewport` resize 跟随，横竖屏切换后下一帧重算。
 
-**跨包避让契约（源自 issue #116，不可回退）**：本插件浮窗默认 `top-right` 且距顶
-8px、高约 26px；dsh-provider-usage 用量胶囊依赖这一默认位置以 `offsetY: 48`
-在其正下方让位（两胶囊默认互不重叠）。修改本插件默认锚点 / 垂直偏移会使该避让
-失效，属跨包行为契约，回退前须同步调整 provider-usage 默认值。
+浮窗默认 `top-right`、距顶 8px；位置与偏移都可在设置页调整，不依赖其它插件约定。
 
 在设置页保存后即时生效，**无需重启 dsh web**、也无需手动刷新页面：宿主端经既有
 SSE events 通道推送一变，客户端自动重新拉取 `/api/dsh-mcp/config` 并就地更新浮窗位置。
@@ -381,10 +387,10 @@ pnpm --filter dsh-mcp-manager test
 
 MIT
 
-## 0.3.0 变更摘要
+## 3.3.0 变更摘要
 
-- 包名去 scope：`@wingsky-1/dsh-mcp-manager` → `dsh-mcp-manager`（identity / 数据目录 / 文档全量同步）
-- JSON 导入支持完整文件：自动解包 `{ "mcpServers": {...} }` 顶层包裹
-- 服务器名允许内部空格（`SERVER_NAME_PATTERN` 放宽），`Figma AI Bridge` 类名字原生合法
-- `/api/dsh-mcp/import/json` 新增 `{ path }` 导入：服务端直接读 mcp.json（支持 `~` 展开）
-- Web 面板 Quick add 新增「从 mcp.json 文件导入」路径输入与按钮
+- 新增三个独立入口开关：浮窗 / 左侧导航 / 设置页；浮窗跟随会话，另两个面板可选工作区
+- 新增 `GET /api/dsh-mcp/workspaces`，嵌入面板顶部提供工作区下拉
+- 快速接入的每个 mcp.json 来源新增「导入」：选择本地 JSON 文件，与已有内容合并（同名保留已有）
+- 新增 `showFloat` / `showSidebar` / `showSettings` 配置键；旧配置缺省时按默认值运行
+- 面板头/标签/内容区间距调整；监听 locale 注册失败时继续绑定并回落到自带中文

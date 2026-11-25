@@ -50,6 +50,11 @@ export declare const zh: {
     readonly floatEmptyTitle: "还没有 MCP 服务器";
     readonly floatEmptyCta: "去添加";
     readonly panelTitle: "MCP 管理器";
+    readonly workspaceLabel: "工作区";
+    readonly workspaceGlobal: "仅全局";
+    readonly settingsShowFloat: "右上角浮窗（跟随当前工作区）";
+    readonly settingsShowSidebar: "左侧导航入口";
+    readonly settingsShowSettings: "设置页入口";
     readonly tabServers: "服务器";
     readonly tabQuickAdd: "快速接入";
     readonly countsConnected: "运行中 {n}";
@@ -86,6 +91,9 @@ export declare const zh: {
     readonly srcUngrouped: "其他（未声明来源）";
     readonly srcQuickSetup: "快速配置该来源";
     readonly srcEdit: "编辑";
+    readonly srcImport: "导入";
+    readonly importDone: "导入完成：新增 {added} 台，跳过 {skipped} 台同名";
+    readonly importNoNew: "没有新增：{skipped} 台同名已存在";
     readonly srcSave: "保存并同步";
     readonly srcSavedOk: "已保存并同步：{names}";
     readonly srcMutexRemoved: "互斥移除同名：{names}";

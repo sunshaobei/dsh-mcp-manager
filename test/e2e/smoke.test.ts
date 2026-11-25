@@ -1725,7 +1725,12 @@ it("README 含 position/offset 配置说明（键名与默认值，中英）", (
       text.includes("top-left") && text.includes("bottom-left"),
       `#128 ${file} 未含四角值域`,
     ).toBeTruthy();
-    expect(/#116/.test(text), `#128 ${file} 未标注 #116 跨包避让契约`).toBeTruthy();
+    // 三个入口开关与工作区/文件导入是 3.3.0 的公开面，README 必须同步。
+    expect(text.includes("showFloat"), `${file} 未含 showFloat`).toBeTruthy();
+    expect(text.includes("showSidebar"), `${file} 未含 showSidebar`).toBeTruthy();
+    expect(text.includes("showSettings"), `${file} 未含 showSettings`).toBeTruthy();
+    expect(text.includes("workspace") || text.includes("工作区"), `${file} 未含工作区`).toBeTruthy();
+    expect(text.includes("Import") || text.includes("导入"), `${file} 未含导入`).toBeTruthy();
     const hotUpdatePhrase = file === "README.en.md" ? "without restarting" : "无需重启";
     expect(text.includes(hotUpdatePhrase), `${file} 未声明「保存即热更新无需重启」`).toBeTruthy();
   }
@@ -2604,8 +2609,8 @@ describe("路由（makeRoutes / events / health / tool-disable / resume）", () 
     cleanup();
   });
 
-  it("注册 12 条 exact 路由（含 tool-disable / resume / sources 三件套）", () => {
-    expect(routes.length).toBe(12);
+  it("注册 13 条 exact 路由（含 tool-disable / resume / sources / workspaces）", () => {
+    expect(routes.length).toBe(13);
     for (const route of routes) expect(route.kind).toBe("exact");
   });
 
@@ -2812,6 +2817,34 @@ describe("路由（makeRoutes / events / health / tool-disable / resume）", () 
     const res405 = fakeRes();
     await find(ROUTES.toolDisable).handler(fakeReq("GET", ROUTES.toolDisable), res405);
     expect(res405.state.status).toBe(405);
+  });
+
+  it("workspaces 围栏：非 loopback → 403 / POST → 405 / GET 返回 registry 列表", async () => {
+    const res403 = fakeRes();
+    await find(ROUTES.workspaces).handler(
+      fakeFenceBroken("GET", ROUTES.workspaces),
+      res403,
+    );
+    expect(res403.state.status).toBe(403);
+    const res405 = fakeRes();
+    await find(ROUTES.workspaces).handler(fakeReq("POST", ROUTES.workspaces), res405);
+    expect(res405.state.status).toBe(405);
+
+    const mutable = manager as unknown as {
+      listWorkspaces?: () => Array<{ id: string; name: string; path: string }>;
+    };
+    const original = mutable.listWorkspaces;
+    mutable.listWorkspaces = () => [{ id: "w1", name: "项目甲", path: "/tmp/proj-a" }];
+    try {
+      const res200 = fakeRes();
+      await find(ROUTES.workspaces).handler(fakeReq("GET", ROUTES.workspaces), res200);
+      expect(res200.state.status).toBe(200);
+      expect(JSON.parse(res200.state.body)).toEqual({
+        workspaces: [{ id: "w1", name: "项目甲", path: "/tmp/proj-a" }],
+      });
+    } finally {
+      mutable.listWorkspaces = original;
+    }
   });
 
   it("白名单外方法 → 405 + error 文案逐字（每端点 ≥1 锚；servers 为最大写面补缺）", async () => {
@@ -3099,7 +3132,7 @@ it("默认配置注册路由与提示词（空存储不连接）", async () => {
   const ctx = fakeCtx();
   try {
     await apply(ctx, { enabled: true, storePath: join(dir, "dsh-mcp.json") });
-    expect(ctx.routes.length).toBe(14); // 12 条业务路由 + 1 条 SSE events + 1 条 health
+    expect(ctx.routes.length).toBe(15); // 13 条业务路由 + 1 条 SSE events + 1 条 health
     expect(
       ctx.routes.some((route) => route.path === ROUTES.events),
       "SSE events 路由已注册",

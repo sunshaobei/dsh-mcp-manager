@@ -86,6 +86,9 @@ const UI_CONFIG_KEYS: readonly string[] = [
   "offsetY",
   "blankY",
   "zIndexBase",
+  "showFloat",
+  "showSidebar",
+  "showSettings",
 ];
 
 /** UI 配置读写（GET 豁免 loopback；写操作 loopback-only，未知顶层键 400）。 */
@@ -140,6 +143,29 @@ export function buildConfigRoute(manager: RoutesManager, helpers: RouteHelpers):
       // 白名单外方法（PUT/DELETE/OPTIONS 等）直接 405、不查 loopback——非
       // loopback+PUT 返回 405 而非 403 是契约行为，禁止误套守卫（会漂移为 403）。
       writeJson(res, 405, { error: `method not allowed: ${req.method}` });
+    },
+  };
+}
+
+// ------------------------------------------------------------ /workspaces
+
+/**
+ * GET /workspaces：嵌入面板的工作区下拉数据源。
+ *
+ * 只读、loopback-only。宿主 `workspaceRegistry` 缺席（老宿主 / 夹具）时返回空
+ * 数组，客户端回落「仅全局 + 当前会话」，不把缺服务变成错误。
+ */
+export function buildWorkspacesRoute(manager: RoutesManager, helpers: RouteHelpers): WebRoute {
+  return {
+    kind: "exact",
+    path: ROUTES.workspaces,
+    handler: (req: Req, res: Res) => {
+      if (!guardLoopbackMethod(req, res, ROUTE_FENCE.workspaces.guarded)) return;
+      try {
+        writeJson(res, 200, { workspaces: manager.listWorkspaces?.() ?? [] });
+      } catch (error) {
+        helpers.handleError(res, error);
+      }
     },
   };
 }

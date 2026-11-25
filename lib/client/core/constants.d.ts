@@ -25,6 +25,7 @@ export declare const API: {
     events: string;
     health: string;
     toolDisable: string;
+    workspaces: string;
 };
 /** 状态分组排序（按优先级降序；titleKey 为字典 key，渲染期 t(titleKey)）。 */
 export declare const STATUS_ORDER: ({

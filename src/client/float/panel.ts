@@ -81,7 +81,9 @@ function countsSummaryText(state: McpState): string {
  *  标红（与浮窗同语义）。徽标缺席（面板头未建）时静默跳过。 */
 function renderCountsBadge(state: McpState): void {
   if (typeof document === "undefined") return;
-  const countsEl = document.querySelector(".dm-counts");
+  // 每个视图（模态 / 左侧导航 / 设置页）各持一份计数徽标：旧的全局 querySelector
+  // 会把嵌入面板的刷新写到第一个 .dm-counts（模态）上，两个视图串台。
+  const countsEl = state.countsEl ?? document.querySelector(".dm-counts");
   if (countsEl === null) return;
   const summary = countsSummaryText(state);
   const failed = state.counts.failed ?? 0;
@@ -209,7 +211,9 @@ export function showPanel(state: McpState, actions: UiActions): void {
 
     const head = el("div", { class: "dm-head" });
     head.appendChild(el("h2", { text: t("panelTitle") }));
-    head.appendChild(el("span", { class: "dm-counts", text: "" }));
+    const counts = el("span", { class: "dm-counts", text: "" });
+    state.countsEl = counts;
+    head.appendChild(counts);
     head.appendChild(
       el("button", { text: t("refresh"), onclick: () => void refresh(state, actions) }),
     );

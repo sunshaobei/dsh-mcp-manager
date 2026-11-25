@@ -63,4 +63,10 @@ export interface ClientUiConfig {
   offsetY: number;
   blankY: number;
   zIndexBase: number;
+  /** 右上角浮窗胶囊（跟随当前会话工作区；默认开）。 */
+  showFloat?: boolean;
+  /** 左侧主导航入口（完整管理面板；默认关）。 */
+  showSidebar?: boolean;
+  /** 设置页入口（完整管理面板；默认关）。 */
+  showSettings?: boolean;
 }

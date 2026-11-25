@@ -29,6 +29,8 @@ export interface McpState {
   card: HTMLElement | undefined;
   /** 模态面板 body 容器。 */
   bodyEl: HTMLElement | undefined;
+  /** 当前视图的计数徽标（嵌入面板与模态面板各自持有，避免全局 querySelector 串台）。 */
+  countsEl: HTMLElement | undefined;
   /** 模态面板是否打开。 */
   open: boolean;
   /** 打开面板时的焦点归属（R6 关还焦：close 时恢复；非元素/已卸载则跳过）。 */
@@ -75,6 +77,7 @@ export function createState(): McpState {
     overlay: undefined,
     card: undefined,
     bodyEl: undefined,
+    countsEl: undefined,
     open: false,
     panelOpener: undefined,
     activeTab: "servers",
@@ -97,6 +100,9 @@ export function createState(): McpState {
       offsetY: 8,
       blankY: 40,
       zIndexBase: DEFAULT_Z_INDEX_BASE,
+      showFloat: true,
+      showSidebar: false,
+      showSettings: false,
     },
     API: { ...API },
   };

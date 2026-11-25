@@ -1,14 +1,16 @@
-# dsh-mcp-manager
-[![npm](https://img.shields.io/npm/v/dsh-mcp-manager)](https://www.npmjs.com/package/dsh-mcp-manager)
-[![GitHub Releases](https://img.shields.io/github/v/release/wingsky-1/dsh-plugin-hub)](https://github.com/wingsky-1/dsh-plugin-hub/releases)
+# @sunshaobei/dsh-mcp-manager
+[![npm](https://img.shields.io/npm/v/@sunshaobei/dsh-mcp-manager)](https://www.npmjs.com/package/@sunshaobei/dsh-mcp-manager)
+[![GitHub Releases](https://img.shields.io/github/v/release/sunshaobei/dsh-mcp-manager)](https://github.com/sunshaobei/dsh-mcp-manager/releases)
 
-A **MCP server management plugin** for DSH (DeepSeek Harness): a floating window in the
-top-right of the session UI + a tiered panel + quick onboarding (manual form + paste
-`mcpServers` JSON import, **no servers preconfigured**). Connection and protocol come from
-the official `@deepseek-ai/dsh-mcp-client` (mounted by name through the host cordis loader,
-resolved to the copy inside the DSH installation); this plugin keeps only the configuration
-surface and the model-visible surface. The official client is not redistributed with this
-package, and nothing extra needs to be installed.
+A **MCP server management plugin** for DSH (DeepSeek Harness): a top-right floating pill,
+a left-sidebar entry, and a settings-page entry (each independently switchable); the full
+panel can pick a workspace; quick onboarding supports pasted `mcpServers` JSON and
+**one-click import from a local mcp.json file (merged with existing content)**, with
+**no servers preconfigured**. Connection and protocol come from the host's own MCP client
+(mounted by name through the cordis loader, resolved to the copy inside the DSH
+installation); this plugin keeps only the configuration surface and the model-visible
+surface. The client is not redistributed with this package, and nothing extra needs to be
+installed.
 
 The model surface carries exactly four atomic tools (`ws_mcp_list` / `ws_mcp_detail` /
 `ws_mcp_search` / `ws_mcp_call`): project-level, global and runtime-injected
@@ -32,7 +34,7 @@ them has no effect, and this plugin never rewrites your config file.)
 ## Quick install
 
 ```sh
-dsh plugin --profile web add dsh-mcp-manager
+dsh plugin --profile web add @sunshaobei/dsh-mcp-manager
 ```
 
 > After install / uninstall / update, **restart `dsh web` once** (bundle layers are only composed at startup) for changes to take effect.
@@ -73,19 +75,19 @@ without a global install, see "Without a global dsh install" below).
 ### Install plugins (add)
 
 ```sh
-dsh plugin --profile web add dsh-mcp-manager
+dsh plugin --profile web add @sunshaobei/dsh-mcp-manager
 ```
 
 ### Uninstall plugins (remove)
 
 ```sh
-dsh plugin --profile web remove dsh-mcp-manager
+dsh plugin --profile web remove @sunshaobei/dsh-mcp-manager
 ```
 
 ### Update plugins (update)
 
 ```sh
-dsh plugin --profile web update dsh-mcp-manager
+dsh plugin --profile web update @sunshaobei/dsh-mcp-manager
 ```
 
 > After install / uninstall / update, **restart `dsh web` once** (bundle layers are only
@@ -96,7 +98,7 @@ dsh plugin --profile web update dsh-mcp-manager
 Omitting `@version` installs the default latest (recommended). Only when the registry has not synced the latest yet, or the latest has issues in your environment, append `@version` to the package name:
 
 ```sh
-dsh plugin --profile web add dsh-mcp-manager@<version>
+dsh plugin --profile web add @sunshaobei/dsh-mcp-manager@<version>
 ```
 
 ### Without a global dsh install
@@ -105,9 +107,9 @@ If there is no global `dsh` command on the machine, use `npx` to run it on the f
 calls `pnpm` under the hood, so `pnpm` and `Node.js` must still be installed locally):
 
 ```sh
-npx @deepseek-ai/dsh plugin --profile web add dsh-mcp-manager
-npx @deepseek-ai/dsh plugin --profile web remove dsh-mcp-manager
-npx @deepseek-ai/dsh plugin --profile web update dsh-mcp-manager
+npx @deepseek-ai/dsh plugin --profile web add @sunshaobei/dsh-mcp-manager
+npx @deepseek-ai/dsh plugin --profile web remove @sunshaobei/dsh-mcp-manager
+npx @deepseek-ai/dsh plugin --profile web update @sunshaobei/dsh-mcp-manager
 ```
 
 ## Capabilities
@@ -119,7 +121,7 @@ npx @deepseek-ai/dsh plugin --profile web update dsh-mcp-manager
 | Tiered display | Running / Connecting / Reconnecting / Disconnected / Disabled / Failed; each server shows transport, endpoint, and tool count |
 | Server management | CRUD (project-level/global optional), connect / disconnect / reconnect; versioned JSON config, atomic write |
 | Two transports | stdio (local subprocess, env supports `${ENV}` references) and streamable-http (remote, header supports `${ENV}` references, auto-echoes `Mcp-Session-Id`) |
-| JSON import | Paste `mcpServers` JSON text to import (JSON format only; does not scan any application config files) |
+| JSON import | Paste `mcpServers` JSON text to import; each mcp.json source on Quick add has an **Import** button that reads a local JSON file and merges it (same-name keeps existing, new names are appended, other top-level keys preserved) |
 | Model tools | Every server (project-level / global / runtime-injected) goes through the same four atomic middleware tools: `ws_mcp_list` / `ws_mcp_detail` / `ws_mcp_search` / `ws_mcp_call`, so workspaces never clash; the host registration name `mcp__<id>__<tool>` (`id` allocated at random per (workspace, server), stable within one assembly, opaque; names still obey the 64-char / `[A-Za-z0-9_-]` / hashed-suffix-on-conflict rules) is internal only — it is removed from the model's tool list and must never be called directly |
 | Workspace isolation | The middleware routes by the calling session's cwd to the matching workspace connection pool; server full-name consistency checks (`@<root>/<server>`) prevent cross-workspace crosstalk |
 | Reconnection | Exponential backoff (starts at 500ms, caps at 30s, gives up after 10 attempts and deregisters the tools) |
@@ -133,7 +135,7 @@ Configuration page: **Plugin Manager → dsh-mcp-manager → Configure**. The fl
 (MCP pill) position and offsets (`position` / `offset`) are saved there through the plugin's
 own `Config`; no config-file editing is needed.
 
-> Non-loopback LAN origins (for example `192.168.*:3081`) intentionally do not expose a persistent settings surface, so the Configure control is hidden by DSH's security policy. Manage settings from `127.0.0.1:3080` / `127.0.0.1:3081` or an SSH loopback tunnel. Enable dsh-lan-proxy `ownsHostCompat` only on a trusted LAN and only when you accept the shared control-plane risk.
+> Non-loopback LAN origins (for example `192.168.*:3081`) intentionally do not expose a persistent settings surface, so the Configure control is hidden by DSH's security policy. Manage settings from `127.0.0.1:3080` / `127.0.0.1:3081` or an SSH loopback tunnel.
 
 | Key | Allowed values | Default |
 | --- | --- | --- |
@@ -142,6 +144,14 @@ own `Config`; no config-file editing is needed.
 | `offset.y` | Non-negative integer (vertical offset, px) | `8` |
 | `offset.blankY` | Non-negative integer (blank-session vertical offset, px) | `40` |
 | `zIndexBase` | Integer, clamped to 1-9000 (floating window z-index base; **the pill and the main panel opened on click both use this same config value**; the modal manager panel is unaffected) | `10` |
+| `showFloat` | Top-right floating pill (follows the current session workspace) | `true` |
+| `showSidebar` | Left-sidebar entry (full manager panel) | `false` |
+| `showSettings` | Settings-page entry (full manager panel) | `false` |
+
+The three switches are independent: the floating pill follows the current session
+workspace, while the sidebar/settings panels carry a **workspace selector** ("global only"
+plus registered workspaces) and do not follow the session. Unchecking a switch disposes the
+corresponding slot registration (not a hidden DOM); changes apply immediately over SSE.
 
 #### Settings namespace
 
@@ -162,12 +172,8 @@ the viewport in JS (safe-area semantics: the host has no `viewport-fit=cover`, s
 the on-screen keyboard is followed via `visualViewport` resize, and orientation changes
 recompute on the next frame.
 
-**Cross-package avoidance contract (from issue #116, must not be reverted)**: this
-plugin's pill defaults to `top-right` at 8px from the top and ~26px tall;
-dsh-provider-usage's usage capsule relies on that default position with `offsetY: 48`
-to sit right below it (no overlap by default). Changing this plugin's default anchor /
-vertical offsets breaks that avoidance — treat it as a cross-package behavioral contract
-and adjust provider-usage defaults in lockstep before reverting.
+The pill defaults to `top-right`, 8px from the top; both anchor and offsets are editable
+in the settings page and do not depend on any other plugin's convention.
 
 Saving in the settings page takes effect immediately, **without restarting dsh web** and
 without manually refreshing the page: the host pushes a frame over the existing SSE events

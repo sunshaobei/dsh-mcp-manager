@@ -39,6 +39,12 @@ export interface RoutesManager {
     refreshFromDisk(): Promise<void>;
     uiConfig(): ClientUiConfig;
     updateUiConfig(raw: unknown): Promise<ClientUiConfig>;
+    /** 工作区列表（嵌入面板的工作区下拉；老宿主/夹具缺省时返回空数组）。 */
+    listWorkspaces?(): Array<{
+        id: string;
+        name: string;
+        path: string;
+    }>;
     summary(): Record<string, unknown>;
     /** 错误文案脱敏（#770-A2：经 getRedactionServers 全集快照，路由错误边界统一调用）。
      * 可选：旧夹具/外部实现缺省时路由回落原文（自身无秘密可泄）；真 manager 恒提供。 */

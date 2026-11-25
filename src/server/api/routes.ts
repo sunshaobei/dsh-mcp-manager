@@ -36,6 +36,7 @@ import {
   buildSourceSaveRoute,
   buildSourcesRoute,
   buildToolDisableRoute,
+  buildWorkspacesRoute,
   type RouteHelpers,
 } from "./routes-controllers.ts";
 import { queryParam } from "./routes-helpers.ts";
@@ -100,6 +101,7 @@ export function makeRoutes(manager: RoutesManager, _cwd = process.cwd(), scoped 
     buildSourceSaveRoute(manager, helpers),
     buildSourceActivateRoute(manager, helpers),
     buildToolDisableRoute(manager, helpers),
+    buildWorkspacesRoute(manager, helpers),
   ];
   if (scoped || manager.forWorkspace === undefined) return routes;
   return routes.map((route, index) => ({ ...route, handler: async (req, res) => {

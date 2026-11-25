@@ -20,6 +20,9 @@ export const DEFAULT_UI_CONFIG: UiPlacementConfig = {
   position: "top-right",
   offset: { x: 8, y: 8, blankY: 40 },
   zIndexBase: DEFAULT_Z_INDEX_BASE,
+  showFloat: true,
+  showSidebar: false,
+  showSettings: false,
 };
 
 const DebugConfigSchema = z
@@ -66,6 +69,18 @@ const UiConfigSchema = z
       .number()
       .default(DEFAULT_UI_CONFIG.zIndexBase)
       .description("浮窗层级基准（1-9000），胶囊与点击后弹出的主面板同取该配置值"),
+    showFloat: z
+      .boolean()
+      .default(true)
+      .description("显示右上角浮窗（跟随当前会话工作区）"),
+    showSidebar: z
+      .boolean()
+      .default(false)
+      .description("显示左侧导航入口（完整管理面板，可选工作区）"),
+    showSettings: z
+      .boolean()
+      .default(false)
+      .description("显示设置页入口（完整管理面板，可选工作区）"),
   })
   .extra("volatile", true);
 
@@ -105,7 +120,13 @@ export function normalizeUiConfig(raw: unknown): ClientUiConfig {
   const offsetY = clampNum(ui.offsetY ?? offset.y, DEFAULT_UI_CONFIG.offset.y);
   const blankY = clampNum(ui.blankY ?? offset.blankY, DEFAULT_UI_CONFIG.offset.blankY);
   const zIndexBase = clampZIndexBase(ui.zIndexBase, DEFAULT_UI_CONFIG.zIndexBase);
-  return { position, offsetX, offsetY, blankY, zIndexBase };
+  const out: ClientUiConfig = { position, offsetX, offsetY, blankY, zIndexBase };
+  // 只回显「配置里真实存在」的开关：旧配置文件/夹具没有这些键时保持缺省，
+  // 客户端按默认值展示；写回时也不会凭空新增键（兼容旧宿主与旧测试）。
+  if (typeof ui.showFloat === "boolean") out.showFloat = ui.showFloat;
+  if (typeof ui.showSidebar === "boolean") out.showSidebar = ui.showSidebar;
+  if (typeof ui.showSettings === "boolean") out.showSettings = ui.showSettings;
+  return out;
 }
 
 /**
@@ -115,11 +136,15 @@ export function normalizeUiConfig(raw: unknown): ClientUiConfig {
  */
 export function buildConfigUiPatch(raw: unknown): UiPlacementConfig {
   const cfg = normalizeUiConfig(raw);
-  return {
+  const patch: UiPlacementConfig = {
     position: cfg.position,
     offset: { x: cfg.offsetX, y: cfg.offsetY, blankY: cfg.blankY },
     zIndexBase: cfg.zIndexBase,
   };
+  if (cfg.showFloat !== undefined) patch.showFloat = cfg.showFloat;
+  if (cfg.showSidebar !== undefined) patch.showSidebar = cfg.showSidebar;
+  if (cfg.showSettings !== undefined) patch.showSettings = cfg.showSettings;
+  return patch;
 }
 
 /** 面板垂直定位纯函数（供 smoke 断言翻转分支；clamp 到视口内，不溢出）。

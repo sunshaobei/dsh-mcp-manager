@@ -28,6 +28,7 @@ export const API = {
   events: ROUTES.events,
   health: ROUTES.health,
   toolDisable: ROUTES.toolDisable,
+  workspaces: ROUTES.workspaces,
 };
 
 /** 状态分组排序（按优先级降序；titleKey 为字典 key，渲染期 t(titleKey)）。 */

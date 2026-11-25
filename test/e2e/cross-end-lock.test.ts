@@ -107,6 +107,7 @@ const FROZEN_ROUTES = {
   events: "/api/dsh-mcp/events",
   health: "/api/dsh-mcp/health",
   toolDisable: "/api/dsh-mcp/tool-disable",
+  workspaces: "/api/dsh-mcp/workspaces",
 };
 const FROZEN_FRAMES = { summary: "summary", uiConfigChanged: "ui-config-changed", ping: "ping" };
 const FROZEN_STATES = {
