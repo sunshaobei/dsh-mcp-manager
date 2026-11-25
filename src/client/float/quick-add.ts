@@ -231,7 +231,15 @@ export function buildQuickAdd(state: McpState, actions: UiActions): HTMLElement 
         { method: "GET" },
       );
       srcBox.innerHTML = "";
-      for (const source of payload.sources) {
+      // 「仅全局」= 没有项目会话：项目级 .dsh/.agents 来源不适用，直接隐藏，
+      // 避免出现「已选仅全局，却还列着项目 mcp.json」的矛盾界面。
+      // 只对**明确的「仅全局」**（cwd === ""）过滤项目来源；undefined 是「会话未知」，
+      // 不能臆断成无项目，否则会把项目 mcp.json 藏掉。
+      const visibleSources =
+        state.currentCwd === ""
+          ? payload.sources.filter((source) => source.scope === "global")
+          : payload.sources;
+      for (const source of visibleSources) {
         const card = el("div", { class: "dm-server", style: "margin-bottom:14px;" });
         card.dataset.dmSrc = source.id;
         card.appendChild(el("div", {

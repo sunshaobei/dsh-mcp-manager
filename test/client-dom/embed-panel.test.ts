@@ -36,7 +36,19 @@ function installFetch(): void {
       return { ok: true, status: 200, json: async () => ({ servers: [], counts: {} }) };
     }
     if (url.includes("/sources")) {
-      return { ok: true, status: 200, json: async () => ({ sources: [], prefs: {} }) };
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          sources: [
+            { id: "global-dsh", scope: "global", path: "/g/.dsh/mcp.json", exists: true, error: null, text: null },
+            { id: "global-agents", scope: "global", path: "/g/.agents/mcp.json", exists: true, error: null, text: null },
+            { id: "project-dsh", scope: "project", path: "/p/.dsh/mcp.json", exists: true, error: null, text: null },
+            { id: "project-agents", scope: "project", path: "/p/.agents/mcp.json", exists: true, error: null, text: null },
+          ],
+          prefs: {},
+        }),
+      };
     }
     return { ok: true, status: 200, json: async () => ({}) };
   }) as unknown as typeof fetch;
@@ -79,6 +91,24 @@ describe("EmbeddedMcpPanel", () => {
     ]);
     expect(select!.value).toBe("/tmp/proj-a");
     expect(document.querySelector(".dm-head h2")?.textContent).toBe("MCP 管理器");
+  });
+
+  it("仅全局时快速接入只列全局来源，不列项目 mcp.json", async () => {
+    const state = baseState();
+    state.currentCwd = "";
+    render(React.createElement(EmbeddedMcpPanel, { baseState: state }));
+    await flush();
+    const quick = [...document.querySelectorAll<HTMLButtonElement>(".dm-tab")].find(
+      (button) => button.textContent?.trim() === "快速接入",
+    );
+    await act(async () => {
+      quick?.click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
+    });
+    const rows = [...document.querySelectorAll(".dm-server")].map((row) => row.textContent ?? "");
+    expect(rows).toHaveLength(2);
+    expect(rows.join("\n")).toContain("全局 .dsh/mcp.json");
+    expect(rows.join("\n")).not.toContain("项目 .dsh/mcp.json");
   });
 
   it("在快速接入 tab 切换工作区会重建表单，而不是留下空白", async () => {
