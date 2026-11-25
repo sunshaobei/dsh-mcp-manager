@@ -1220,12 +1220,13 @@ it("#362 P1：disabledTools 持久化（合并式写盘 + 重启保留）", asyn
     rmSync(dir, { recursive: true, force: true });
   }
 });
-it("client 产物包含 0.1.7-rc.2 plugins.row.config canonical identity 契约", () => {
+it("client 产物包含包级 + 行级配置卡与 scope 化 canonical identity", () => {
   const clientSrc = readFileSync(new URL("../../lib/client.js", import.meta.url), "utf8");
+  expect(clientSrc, "客户端产物注册 plugins.bundle.config").toContain("plugins.bundle.config");
   expect(clientSrc, "客户端产物注册 plugins.row.config").toContain("plugins.row.config");
-  expect(clientSrc, "canonical bundle package 已入产物").toContain("dsh-mcp-manager");
-  expect(clientSrc, "canonical row id 已入产物").toContain("dsh-mcp-manager");
-  expect(clientSrc, "客户端产物声明 configForms 注入面").toContain("configForms");
+  expect(clientSrc, "canonical bundle package 已入产物").toContain("@sunshaobei/dsh-mcp-manager");
+  expect(clientSrc, "row key 计算面已入产物").toContain("rowConfigKey");
+  expect(clientSrc, "不再依赖 configForms 门控").not.toContain("configForms");
 });
 
 it("#362 客户端：工具级禁用 checkbox + scope 分组 + 全局组工具开关（#767 笔 2：模式下拉已删）", () => {

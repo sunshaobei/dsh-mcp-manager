@@ -564,89 +564,35 @@ function bootRowLifecycle(): RowLifecycleHarness {
   };
 }
 
-describe("0.1.7-rc.2 plugins.row.config 装配", () => {
-  it("apply 只监听 canonical settings namespace，服务前 slot ledger 为空", () => {
-    const harness = bootRowLifecycle();
-    expect(harness.watchedNamespaces).toEqual([MCP_MANAGER_IDENTITY.settingsNamespace]);
-    expect(harness.injectedSlots).toEqual([]);
-    expect(harness.ledger).toEqual([]);
-  });
-
-  it("服务后注册精确 keyed row，并把 summary/page view 与 form 交给组件", () => {
-    const harness = bootRowLifecycle();
-    harness.serve(new Set(["dsh-mcp-manager"]));
-    expect(harness.injectedSlots).toEqual(["plugins.row.config"]);
-    expect(harness.ledger).toHaveLength(1);
-    expect(harness.ledger[0]?.item).toEqual({
-      name: "plugins.row.config",
-      key: MCP_MANAGER_IDENTITY.rowConfigKey,
-      locale: "mcpManager",
-    });
-    const form = { id: "config-form" };
-    const summary = harness.ledger[0]?.render({ view: "summary", form }) as {
-      props?: { view?: string; form?: unknown };
-    } | null;
-    const page = harness.ledger[0]?.render({ view: "page", form }) as {
-      props?: { view?: string; form?: unknown };
-    } | null;
-    expect(summary?.props).toEqual({ view: "summary", form });
-    expect(page?.props).toEqual({ view: "page", form });
-  });
-
-  it.each([
-    ["legacy host namespace", ["ui-dsh-mcp-manager"]],
-    ["empty host facts", []],
-  ] as const)("%s 不注册 row", (_label, servedNamespaces) => {
-    const harness = bootRowLifecycle();
-    harness.serve(new Set(servedNamespaces));
-    expect(harness.injectedSlots).toEqual([]);
-    expect(harness.ledger).toEqual([]);
-  });
-
-  it("namespace 撤下调用 register 返回的 off 并清空 slot ledger", () => {
-    const harness = bootRowLifecycle();
-    harness.serve(new Set(["dsh-mcp-manager"]));
-    harness.unserved();
-    expect(harness.ledger).toEqual([]);
-    expect(harness.offCalls()).toBe(1);
-  });
-
-  it("外层 effect teardown 停止 watch、调用当前 off 并清空 slot ledger", () => {
-    const harness = bootRowLifecycle();
-    harness.serve(new Set(["dsh-mcp-manager"]));
-    harness.teardown();
-    expect(harness.ledger).toEqual([]);
-    expect(harness.offCalls()).toBe(1);
-    expect(harness.watchStops()).toBe(1);
-  });
-
-  it("canonical identity 的 package/row/settings/key 关系可追溯", () => {
+describe("插件配置卡装配（0.2.2 bundle/row key）", () => {
+  it("identity 用真实 npm 包名，row key 与宿主计算一致", () => {
     const metadata = JSON.parse(
       readFileSync(new URL("../../package.json", import.meta.url), "utf8"),
     ) as { name: string };
-    // npm 包名 scope 化后与 identity 包键刻意分离：bundlePackage 是稳定契约键（rowConfigKey 前缀），npm name 单独断言。
     expect(metadata.name).toBe("@sunshaobei/dsh-mcp-manager");
-    expect(MCP_MANAGER_IDENTITY.bundlePackage).toBe("dsh-mcp-manager");
-    const hostSource = readFileSync(new URL("../../src/index.ts", import.meta.url), "utf8");
-    const clientSource = readFileSync(
-      new URL("../../src/client/index.ts", import.meta.url),
-      "utf8",
-    );
-    expect(hostSource).toContain("MCP_MANAGER_IDENTITY.settingsNamespace");
-    expect(hostSource).toContain("shared/interface.ts");
-    expect(clientSource).toContain("MCP_MANAGER_IDENTITY.settingsNamespace");
-    expect(clientSource).toContain("MCP_MANAGER_IDENTITY.rowConfigKey");
-    expect(clientSource).toContain("shared/interface.ts");
     expect(MCP_MANAGER_IDENTITY).toEqual({
-      bundlePackage: "dsh-mcp-manager",
+      bundlePackage: "@sunshaobei/dsh-mcp-manager",
       rowId: "dsh-mcp-manager",
       settingsNamespace: "dsh-mcp-manager",
-      rowConfigKey: "dsh-mcp-manager#dsh-mcp-manager",
+      rowConfigKey: "@sunshaobei/dsh-mcp-manager#dsh-mcp-manager",
     });
   });
 
-  it("source inject 精确声明 configForms", () => {
-    expect(clientInject).toEqual(["sessions", "slots", "configForms", "locale"]);
+  it("客户端同时注册包级与行级配置卡，key 分别取 bundlePackage / rowConfigKey", () => {
+    const source = readFileSync(
+      new URL("../../src/client/index.ts", import.meta.url),
+      "utf8",
+    );
+    expect(source).toContain('"plugins.bundle.config"');
+    expect(source).toContain("MCP_MANAGER_IDENTITY.bundlePackage");
+    expect(source).toContain("MCP_MANAGER_IDENTITY.rowConfigKey");
+    // 0.2.2 不再用 configForms.whileServed 门控；注册必须在 apply 内完成，否则包详情页无卡。
+    expect(source).not.toContain("configForms.whileServed");
+    expect(source).toContain("shared/interface.ts");
+  });
+
+  it("source inject 只声明真正消费的服务", () => {
+    expect(clientInject).toEqual(["sessions", "slots", "locale"]);
   });
 
   it("package client metadata 注入官方 settings provider", () => {

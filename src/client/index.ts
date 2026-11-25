@@ -56,7 +56,6 @@ const NS = "mcpManager";
 const ROW_CONFIG_SLOT = "plugins.row.config";
 
 import type { LocaleNamespaceMap as _LocaleNamespaceMap } from "@deepseek-ai/dsh-client-ui-slots";
-import type { ConfigForms } from "@deepseek-ai/dsh-client-ui-settings/client";
 
 declare module "@deepseek-ai/dsh-client-ui-slots" {
   interface LocaleNamespaceMap {
@@ -112,8 +111,8 @@ export function apply(ctx: McpClientContext): void {
 
     const disposers: (() => void)[] = [];
 
-    // 页面只在 Host 服务 canonical settings namespace 时注册；namespace 撤下时，
-    // whileServed 会调用 register 回调返回的 disposer，移除 keyed slot 注册。
+    // 配置卡在 apply 内直接注册（包级 + 行级），不依赖 configForms 门控；
+    // 0.2.2 的插件页按 bundle package name 计算 key，scope 化的真实包名必须一致。
     //
     // 官方 SlotRegistry 的 keyed union 只包含「本包已 import 的宿主 slot 声明」；
     // sidebar.panellist / main / settings.section 的声明分属不同宿主包，且
@@ -127,23 +126,31 @@ export function apply(ctx: McpClientContext): void {
       ): () => void;
     };
     const slots = ctx.get("slots") as unknown as AnySlotRegistry | undefined;
-    const configForms = ctx.get("configForms") as ConfigFormsService | undefined;
-    if (slots !== undefined && configForms !== undefined) {
-      ctx.effect(
-        () =>
-          configForms.whileServed([MCP_MANAGER_IDENTITY.settingsNamespace], () =>
-            slots.inject(ROW_CONFIG_SLOT, () =>
-              slots.register(
-                {
-                  name: ROW_CONFIG_SLOT,
-                  key: MCP_MANAGER_IDENTITY.rowConfigKey,
-                  locale: NS,
-                },
-                (props: SettingsCardProps) => React.createElement(SettingsCard, props),
-              ),
-            ),
-          ),
-        "dsh-mcp-manager: row config page",
+    if (slots !== undefined) {
+      // 0.2.2 的插件页按 **bundle package name** 计算配置卡 key
+      // （rowConfigKey(pkg.name, rowId)），并在包详情页渲染 `plugins.bundle.config`。
+      // 旧实现只注册 row.config 且 bundlePackage 仍是不带 scope 的旧名，key 对不上，
+      // 页面上根本不出现设置卡；这里同时注册 bundle 级与 row 级，key 都用真实包名。
+      const configCard = (props: SettingsCardProps) =>
+        React.createElement(SettingsCard, props);
+      const registerConfigCard = (
+        name: "plugins.bundle.config" | typeof ROW_CONFIG_SLOT,
+        key: string,
+      ): (() => void) | undefined => {
+        try {
+          return slots.inject(name, () =>
+            slots.register({ name, key, locale: NS }, configCard),
+          );
+        } catch (error) {
+          console.warn(`[dsh-mcp-manager] ${name} 注册失败：`, error);
+          return undefined;
+        }
+      };
+      disposers.push(
+        ...[
+          registerConfigCard("plugins.bundle.config", MCP_MANAGER_IDENTITY.bundlePackage),
+          registerConfigCard(ROW_CONFIG_SLOT, MCP_MANAGER_IDENTITY.rowConfigKey),
+        ].filter((dispose): dispose is () => void => dispose !== undefined),
       );
     }
 
@@ -542,13 +549,6 @@ export function apply(ctx: McpClientContext): void {
   }
 }
 
-/**
- * configForms 服务最小面：官方 `ConfigForms`（dsh-client-ui-settings，宿主 ctx.configForms）的
- * whileServed Pick——官方签名本就是 `(namespaces, register) => () => void`，此前本文件的镜像
- * 声明形状与官方一致，改成派生后上游改名即判红。
- */
-type ConfigFormsService = Pick<ConfigForms, "whileServed">;
-
 // ---- 客户端契约：apply/inject 由 build-client 经 factory 装配（干净模块）----
-// sessions 跟随当前会话；slots/configForms 装配插件行配置页；locale 注册字典与 t。
-export const inject: string[] = ["sessions", "slots", "configForms", "locale"];
+// sessions 跟随当前会话；slots 装配插件配置卡与入口；locale 注册字典与 t。
+export const inject: string[] = ["sessions", "slots", "locale"];

@@ -491,3 +491,7 @@ MIT
 After application startup, global MCPs and projects in the official workspace registry are prepared in the background. Configuration saves and source-file changes refresh affected connections. Switching sessions reads a workspace snapshot without waiting for connection, discovery, or retry; newly added workspaces are prepared once in the background.
 
 Global connections are shared, while enable switches persist per workspace and apply to the UI, catalog injection, discovery, and execution. Late responses from a previous workspace cannot replace the current workspace snapshot.
+
+## 3.3.1
+
+- Fix the missing plugin settings card on 0.2.2: use the scoped bundle package as the config key and register both bundle-level and row-level cards.

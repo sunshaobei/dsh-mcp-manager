@@ -15,8 +15,8 @@ export declare const SCOPE_PROJECT = "project";
 export declare const MIDDLEWARE_GLOBAL_ROOT = "@global";
 /** dsh 0.1.7-rc.2 插件行配置的 canonical identity；宿主与客户端只消费此对象。 */
 export declare const MCP_MANAGER_IDENTITY: Readonly<{
-    bundlePackage: "dsh-mcp-manager";
+    bundlePackage: "@sunshaobei/dsh-mcp-manager";
     rowId: "dsh-mcp-manager";
     settingsNamespace: "dsh-mcp-manager";
-    rowConfigKey: "dsh-mcp-manager#dsh-mcp-manager";
+    rowConfigKey: "@sunshaobei/dsh-mcp-manager#dsh-mcp-manager";
 }>;

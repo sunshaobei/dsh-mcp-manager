@@ -1,6 +1,6 @@
 {
   "name": "@sunshaobei/dsh-mcp-manager",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Manage MCP servers (stdio / streamable-http) for dsh web; floating pill, left-sidebar entry and settings-page entry (each switchable), full panel with a workspace picker, and one-click mcp.json file import with merge. DSH MCP 管理器：浮窗 / 左侧导航 / 设置页三个独立入口，完整面板可选工作区，快速接入支持 mcp.json 文件导入合并。已连接服务器的工具一律经中间层工具（ws_mcp_search / ws_mcp_detail / ws_mcp_call / ws_mcp_list）访问。",
   "type": "module",
   "main": "lib/index.js",

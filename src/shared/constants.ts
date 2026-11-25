@@ -18,7 +18,7 @@ export const SCOPE_PROJECT = "project";
 export const MIDDLEWARE_GLOBAL_ROOT = "@global";
 
 /** bundle package、row ID 与 settings namespace 各自保持稳定身份。 */
-const MCP_MANAGER_BUNDLE_PACKAGE = "dsh-mcp-manager";
+const MCP_MANAGER_BUNDLE_PACKAGE = "@sunshaobei/dsh-mcp-manager";
 const MCP_MANAGER_ROW_ID = "dsh-mcp-manager";
 const MCP_MANAGER_SETTINGS_NAMESPACE = "dsh-mcp-manager";
 
