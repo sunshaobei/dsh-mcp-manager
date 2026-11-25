@@ -928,7 +928,7 @@ describe("apply 完整 settings 生命周期（isUnloading 覆盖）", () => {
   });
 });
 
-describe("#767 笔 1a：ctx.mcpManager.getTools 行为判据", () => {
+describe("#767 笔 1a：ctx.mcpManagerPro.getTools 行为判据", () => {
   let prevHome: string | undefined;
   let homeDir: string;
   beforeEach(() => {
@@ -990,7 +990,7 @@ describe("#767 笔 1a：ctx.mcpManager.getTools 行为判据", () => {
       announceCatalog: false,
     });
     // 提供方挂载的真服务（行为面由本组用例钉住），此处取其类型面。
-    return { svc: provided.get("mcpManager") as McpManagerService, schemas };
+    return { svc: provided.get("mcpManagerPro") as McpManagerService, schemas };
   }
 
   /** 起一台全局服务器并等它在池里拿到 id（单池：进 @global 单元）。 */

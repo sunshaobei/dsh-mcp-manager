@@ -62,7 +62,7 @@ export type { McpManagerServerInput, McpManagerService } from "./shared/interfac
  *
  * 它不进包导出面：入口对外只有声明合并本身，常量不外放。
  */
-declare const MCP_MANAGER_SERVICE: "mcpManager";
+declare const MCP_MANAGER_SERVICE: "mcpManagerPro";
 /**
  * 对外名字的声明合并。**必须写在包入口**：declare module 是全局增强，入口声明面不可达时
  * `lib/index.d.ts` 里就没有它（`pack:check` 的「声明合并可达性」判据盯这条）。

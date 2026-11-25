@@ -5,12 +5,9 @@
 # 浏览器端（exports "./client"）提供侧边栏入口与分级面板。
 # 配置走 schema 默认值（enabled / announceToAgent），行内不带 config。
 #
-# DSH >= 0.2.2 自带一个官方 MCP 管理器（entry id `mcp-manager`，占用服务名
-# `mcpManager`）。两者同时挂载会让本插件在 provide("mcpManager") 时因服务重名
-# 而整条激活失败。本插件就是替代它的管理器，所以在这里显式停用官方行；
-# 该 id 不存在时禁用条目是无操作，旧宿主上同样安全。
-- id: mcp-manager
-  disabled: true
+# DSH >= 0.2.2 自带官方 MCP 管理器（entry id `mcp-manager`，占用服务名
+# `mcpManager`）。本插件与它**共存**：自己的服务名是 `mcpManagerPro`，不抢占
+# 官方名字，也不停用官方行。两边各管各的配置文件与连接池。
 - insert:
     - id: dsh-mcp-manager
       name: '@sunshaobei/dsh-mcp-manager'

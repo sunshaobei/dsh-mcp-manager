@@ -248,17 +248,20 @@ function installConfigSettings(
 }
 
 /**
- * 向宿主容器提供核心化服务 `ctx.mcpManager`（供其他插件运行时注入/控制/查询
+ * 向宿主容器提供核心化服务 `ctx.mcpManagerPro`（供其他插件运行时注入/控制/查询
  * MCP 服务器）。提供时机由调用方保证（store.load 之后 manager 已就绪）；卸载
  * 由 mcp-manager 自身 dispose() 全量清理（含 runtime 条目与 supervisor）。
  * 兼容：fake ctx（单元测试 mock）可能无 provide，可选调用静默降级。
+ *
+ * 服务名带 `Pro` 后缀：DSH >= 0.2.2 自带官方 `@deepseek-ai/dsh-mcp-manager`，
+ * 它占用 `mcpManager`；本插件与它共存，不抢占、也不停用官方行。
  *
  * 不修项备注（#770-14 低价值收尾，用户裁决）：#5 关闭理由与官方一致（URL 由用户 review，本处不写链）；
  * B1 按 YAGNI 保留双短路防风暴现状；contract-check 盲区与 zIndexBase 非本 issue 面，另开 issue 跟踪，本轮不修。
  */
 function provideMcpManagerService(ctx: Context, manager: McpManager): void {
   if (typeof (ctx as unknown as { provide?: unknown }).provide !== "function") return;
-  ctx.provide("mcpManager", {
+  ctx.provide("mcpManagerPro", {
     // 注入面（内存态不落盘，同名幂等；toolDefinitions 可选封装定义透传 supervisor）
     registerServer: (server: Record<string, unknown>) => manager.registerServer(server),
     unregisterServer: (name: string) => manager.unregisterServer(name),
@@ -622,7 +625,7 @@ export async function apply(
   await store.load();
   const manager = new McpManager(ctx, store);
 
-  // 核心化服务（官方 storageDomain 模式）：对外暴露 ctx.mcpManager（见本文件的 provideMcpManagerService）。
+  // 核心化服务（官方 storageDomain 模式）：对外暴露 ctx.mcpManagerPro（见本文件的 provideMcpManagerService）。
   provideMcpManagerService(ctx, manager);
 
   // settings 命名空间合并面 → 运行时同步（debug/stats）。
@@ -963,7 +966,7 @@ export type { ClientUiConfig } from "./shared/interface.ts";
 // 直接取自子层门面——connection/interface.ts 只留类型出口，不再转发值符号。
 // #875 M2c：McpManager / McpMiddleware 两个句柄类与 10 条超时/截断档位常量按 (b) 退出导出面
 // （判据 R1：本包 12 个域门面的首句全是 seam 陈述，无一命名对外承诺，故不满足 (a) 的前置）。
-// 对外能力仍经 ctx.mcpManager 服务面（见本文件 provideMcpManagerService）与 official 协议栈。
+// 对外能力仍经 ctx.mcpManagerPro 服务面（见本文件 provideMcpManagerService）与 official 协议栈。
 export {
   DEFAULT_TOOL_CALL_TIMEOUT_MS,
   publicToolName,
@@ -977,7 +980,7 @@ export { makeResolveRoot } from "./server/workspace/interface.ts";
 // 禁用判定 / 超时包装 / 结果投影是管道内部的实现步骤。createRedactor 保留：它是 (d4)
 // 经 ctx.tools 注册工具返回的脱敏器工厂（登记文件列了产出点），契约面。
 export { createRedactor } from "./server/pipeline/interface.ts";
-// 核心化 service（官方 storageDomain 模式）：ctx.mcpManager 类型面 + 声明合并。
+// 核心化 service（官方 storageDomain 模式）：ctx.mcpManagerPro 类型面 + 声明合并。
 // 仅类型导出（无副作用导入）：消费方 import 类型时 tsc 会解析 shared 门面，
 // 入口的 declare module 合并自动生效；副作用导入会让 stryker sandbox 解析
 // src/service.js 失败（sandbox 只有 .ts），也避免 .d.ts 里残留 .ts 引用。
@@ -990,7 +993,7 @@ export type { McpManagerServerInput, McpManagerService } from "./shared/interfac
  *
  * 它不进包导出面：入口对外只有声明合并本身，常量不外放。
  */
-const MCP_MANAGER_SERVICE = "mcpManager" as const;
+const MCP_MANAGER_SERVICE = "mcpManagerPro" as const;
 
 /**
  * 对外名字的声明合并。**必须写在包入口**：declare module 是全局增强，入口声明面不可达时

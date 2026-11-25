@@ -26,6 +26,10 @@ dsh plugin --profile web add dsh-mcp-manager
 ```
 
 > 安装 / 卸载 / 更新后都需**重启一次** `dsh web`（bundle 层只在启动时组合）生效。
+>
+> DSH 0.2.2+ 自带官方 MCP 管理器并占用 cordis 服务名 `mcpManager`。本插件从 3.2.0
+> 起与之**共存**：自己的服务名是 `mcpManagerPro`，不停用官方行，两边各管各的配置与
+> 连接池；其他插件请改用 `ctx.mcpManagerPro.registerServer(...)`。
 
 ## 核心优势
 
@@ -210,7 +214,7 @@ call 放行 `@global` root（全局配置跨工作空间共享，语义成立）
 
 ## 运行时注入（registerServer.toolDefinitions）
 
-其他插件可经 `ctx.mcpManager.registerServer` 运行时注册 MCP 服务器（内存态不落盘，
+其他插件可经 `ctx.mcpManagerPro.registerServer` 运行时注册 MCP 服务器（内存态不落盘，
 同名幂等）。注册入参支持可选 `toolDefinitions`（调用方封装工具定义，`ToolDefinition[]`，
 工具名用**裸名**）：
 
@@ -226,7 +230,7 @@ call 放行 `@global` root（全局配置跨工作空间共享，语义成立）
 - 仅运行时注入面（runtimeRegistry）消费，不随 store 落盘、不随 mcpServers 导入透传。
 
 ```ts
-await ctx.mcpManager.registerServer({
+await ctx.mcpManagerPro.registerServer({
   name: "my-mcp",
   transport: "stdio",
   command: "my-mcp-server",
@@ -259,7 +263,7 @@ MCP 连接检查在应用启动后于后台预热全局配置及官方工作区�
   避免把宿主机密隐式透传给 MCP 子进程；**用户在配置里显式声明的 `env` 原样传给子进程**
   （显式层在净化之后合并）——`env` 不是脱敏面，要隔离就别往里写凭据
 - **stdio 子进程继承宿主权限**：MCP 服务器命令在宿主进程权限下执行，
-  仅配置可信的服务器。信任边界：同进程插件注入（`ctx.mcpManager.registerServer`）
+  仅配置可信的服务器。信任边界：同进程插件注入（`ctx.mcpManagerPro.registerServer`）
   与宿主同权限、不构成提权；**随仓库提交的项目级 `mcp.json` 才是需要你审慎对待的那一面**
 - **统计只落元数据**：debug 统计（`debug.callStats`）记录调用次数/时长/成败与渐进式披露
   漏斗；**搜索词只以 SHA-256 哈希桶落盘**（`h:<12 位 hex>`，空查询为 `<empty>`），旧版本

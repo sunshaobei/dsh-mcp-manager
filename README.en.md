@@ -36,6 +36,11 @@ dsh plugin --profile web add dsh-mcp-manager
 ```
 
 > After install / uninstall / update, **restart `dsh web` once** (bundle layers are only composed at startup) for changes to take effect.
+>
+> DSH 0.2.2+ ships its own MCP manager and owns the cordis service name `mcpManager`.
+> Starting with 3.2.0 this plugin **coexists** with it under `mcpManagerPro`: the official
+> row is left enabled, and each manager keeps its own config and connection pool. Other
+> plugins should call `ctx.mcpManagerPro.registerServer(...)`.
 
 ## Core advantages
 
@@ -249,7 +254,7 @@ admission gate.
 
 ## Runtime registration (registerServer.toolDefinitions)
 
-Other plugins can register MCP servers at runtime via `ctx.mcpManager.registerServer`
+Other plugins can register MCP servers at runtime via `ctx.mcpManagerPro.registerServer`
 (in-memory only, not persisted; idempotent for same names). The registration input
 supports an optional `toolDefinitions` field (caller-provided wrapped tool definitions,
 `ToolDefinition[]`; tool names are **bare names**):
@@ -280,7 +285,7 @@ supports an optional `toolDefinitions` field (caller-provided wrapped tool defin
   to the store, never passed through mcpServers imports.
 
 ```ts
-await ctx.mcpManager.registerServer({
+await ctx.mcpManagerPro.registerServer({
   name: "my-mcp",
   transport: "stdio",
   command: "my-mcp-server",
@@ -313,7 +318,7 @@ await ctx.mcpManager.registerServer({
   `env` is not a redaction boundary — do not put credentials there if you want them isolated
 - **stdio subprocess inherits host privileges**: MCP server commands run under the host
   process's permissions; only configure trusted servers. Trust boundary: in-process plugin
-  injection (`ctx.mcpManager.registerServer`) shares this plugin's privileges and is not a
+  injection (`ctx.mcpManagerPro.registerServer`) shares this plugin's privileges and is not a
   privilege escalation; **the project-level `mcp.json` that ships inside a repository is the
   side you should scrutinize**
 - **Stats carry metadata only**: debug stats (`debug.callStats`) record call counts / durations /

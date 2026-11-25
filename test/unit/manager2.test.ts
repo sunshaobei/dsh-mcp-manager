@@ -63,7 +63,7 @@ import { catalogDirectory } from "../../src/server/catalog/interface.ts";
 
 // I8①：单元层不得值引组合根 src/index.ts——管理器、中间层与健康路由改经各自域门面直取，
 // 组合根顶层那六张静态端口表由 helpers 以同实参、同顺序手装。驱动 apply() 的那两组用例
-// （ctx.mcpManager 服务面、apply 配置分支）已整段迁至 test/integration/apply-lifecycle.test.ts。
+// （ctx.mcpManagerPro 服务面、apply 配置分支）已整段迁至 test/integration/apply-lifecycle.test.ts。
 const { McpManager } = await import("../../src/server/connection/orchestrator/interface.ts");
 const { McpMiddleware } = await import("../../src/server/connection/runtime/interface.ts");
 const { makeHealthRoute } = await import("../../src/server/api/interface.ts");
@@ -4050,7 +4050,7 @@ describe("B19 红测：summarize 合并禁用集", () => {
   });
 });
 
-// #767 笔 1a（M5 = A）：ctx.mcpManager.getTools 的行为判据 ----
+// #767 笔 1a（M5 = A）：ctx.mcpManagerPro.getTools 的行为判据 ----
 // 今天全仓零行为断言（只有 service-contract 的编译期类型断言 test/integration/service-contract.test.ts:127
 // 与形参锁 :202）。本笔换了数据源（supervisor.toolMeta → 连接池单元表），必须把
 // 「返回注册名」与「未连接 / 未知 server 返回 []」钉成行为判据。
